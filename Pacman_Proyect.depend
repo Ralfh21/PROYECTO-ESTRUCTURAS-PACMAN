@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1707890665 source:c:\users\james\onedrive\documents\tercer semestre sin miedo\estructuras los datos\codigos u.u\pacman_proyect\main.cpp
+	<allegro.h>
+	<stdio.h>
+	<cstdlib>
+
