@@ -1,8 +1,10 @@
 #include <allegro.h>
 #include <stdio.h>
+#include <AStar.h>
+#include <Matriz.h>
 //incluimos esta libreria para valores randomicos
 #include <cstdlib>
-#define MAXFILAS 20
+#define MAXFILAS 21
 #define MAXCOL 32
 
 using namespace std;
@@ -35,16 +37,28 @@ SAMPLE *muerte;
 int dir= 4;//le ponemos direccion 4 para que este quieto
 //debemos darle la posicion donde empezara pacman
 
-int px = 30*17;
-int py = 30*17;
+int px = 30*18;
+int py = 30*18;
 
 
 //Debemos crear una posicion anterior de la que tiene pacman
 int anterior_px;
 int anterior_py;
 
+
 //mapa del nivel donde estara los muros
 //en el mapa consideraremos a las X como el muro y las o como la comida del pacman
+struct MyPair {
+    int first[50];
+    int second[2];
+};
+
+struct Coordenadas {
+    int x;
+    int y;
+
+    Coordenadas(int _x, int _y) : x(_x), y(_y) {}
+};
 char mapa[MAXFILAS][MAXCOL]=
 {
     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
@@ -56,7 +70,8 @@ char mapa[MAXFILAS][MAXCOL]=
     "X    |XX    |XXX|    XX     X",
     "XoXXXoXXXXXX XXX XXXXXXoXXXoX",
     "X XXXoXX ooo|ooo|ooo XXoXXX X",
-    " o   |XX XXXXXXXXXXX XX|   o ",
+    " o   |XX XXXXX|XXXXX XX|   o ",
+    "X XXXoXX X    |    X XXoXXX X",
     "X XXXoXX XXXXXXXXXXX XXoXXX X",
     "XoXXXoXX oo |ooo|ooo XXoXXXoX",
     "X XXXoXXXXXX XXX XXXXXXoXXX X",
@@ -162,6 +177,7 @@ public:
     void dibujar_fantasma() const ;
     void mover_fantasma();
     void choque_pacman();
+    void Buscarpacman_fantasma(int x,int y);
 
 };
 //creamos el constructos para darle los parametros
@@ -212,8 +228,8 @@ void fantasma::choque_pacman()
             //damos un tiempo
             rest(80);
         }
-        px = 30*17;
-        py = 30*17;
+        px = 30*18;
+        py = 30*18;
         dir = 4;
     }
 
@@ -224,6 +240,7 @@ void fantasma::choque_pacman()
 
 void fantasma::mover_fantasma()
 {
+
 
 //mandamos a ilutrar al fantasma
     dibujar_fantasma();
@@ -278,8 +295,144 @@ void fantasma::mover_fantasma()
 
 
 }
+void fantasma::Buscarpacman_fantasma(int x,int y)
+{
+
+
+    _x=x;
+    _y=y;
+//mandamos a ilutrar al fantasma
+    dibujar_fantasma();
+    //implementamos la funcion del choque pacman
+    choque_pacman();
+    //Creamos una direccion en caso de que haya caminos en el medio
+
+
+    //debemos hacer la rutina para los atajos
+    //debemos crear una direcion para cuando tome atajos
+    if(_x <= -30)
+        _x = 870; //atajo de la izquierda
+    else if (_x >= 870)
+        _x = -30;
+
+
+}
 int main ()
 {
+    int i=0;
+    int finalFY=0;
+    int finalFX=0;
+    int FCfinalFY=0;
+    int FCfinalFX=0;
+
+
+   // Grafo del mapa Pacman
+                 //1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29
+                 //0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28
+
+        vector<vector<int> > grid;
+                 //0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28
+    int row1[] =  {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+    int row2[] =  {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
+    int row3[] =  {1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1};
+    int row4[] =  {1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1};
+    int row5[] =  {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
+    int row6[] =  {1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1};
+    int row7[] =  {1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1};
+    int row8[] =  {1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1};
+    int row9[] =  {1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 1};
+    int row10[] = {0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0};
+    int row11[] = {1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1};
+    int row12[] = {1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1};
+    int row13[] = {1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 1};
+    int row14[] = {1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1};
+    int row15[] = {1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1};
+    int row16[] = {1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1};
+    int row17[] = {1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1};
+    int row18[] = {1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1};
+    int row19[] = {1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1};
+    int row20[] = {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
+    int row21[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+
+
+
+    grid.push_back(vector<int>(row1, row1 + sizeof(row1) / sizeof(row1[0])));
+    grid.push_back(vector<int>(row2, row2 + sizeof(row2) / sizeof(row2[0])));
+    grid.push_back(vector<int>(row3, row3 + sizeof(row3) / sizeof(row3[0])));
+    grid.push_back(vector<int>(row4, row4 + sizeof(row4) / sizeof(row4[0])));
+    grid.push_back(vector<int>(row5, row5 + sizeof(row5) / sizeof(row5[0])));
+    grid.push_back(vector<int>(row6, row6 + sizeof(row6) / sizeof(row6[0])));
+    grid.push_back(vector<int>(row7, row7 + sizeof(row7) / sizeof(row7[0])));
+    grid.push_back(vector<int>(row8, row8 + sizeof(row8) / sizeof(row8[0])));
+    grid.push_back(vector<int>(row9, row9 + sizeof(row9) / sizeof(row9[0])));
+    grid.push_back(vector<int>(row10, row10 + sizeof(row10) / sizeof(row10[0])));
+    grid.push_back(vector<int>(row11, row11 + sizeof(row11) / sizeof(row11[0])));
+    grid.push_back(vector<int>(row12, row12 + sizeof(row12) / sizeof(row12[0])));
+    grid.push_back(vector<int>(row13, row13 + sizeof(row13) / sizeof(row13[0])));
+    grid.push_back(vector<int>(row14, row14 + sizeof(row14) / sizeof(row14[0])));
+    grid.push_back(vector<int>(row15, row15 + sizeof(row15) / sizeof(row15[0])));
+    grid.push_back(vector<int>(row16, row16 + sizeof(row16) / sizeof(row16[0])));
+    grid.push_back(vector<int>(row17, row17 + sizeof(row17) / sizeof(row17[0])));
+    grid.push_back(vector<int>(row18, row18 + sizeof(row18) / sizeof(row18[0])));
+    grid.push_back(vector<int>(row19, row19 + sizeof(row19) / sizeof(row19[0])));
+    grid.push_back(vector<int>(row20, row20 + sizeof(row20) / sizeof(row20[0])));
+    grid.push_back(vector<int>(row21, row21 + sizeof(row21) / sizeof(row21[0])));
+    AStar astar(grid);
+    /*Filas*/int startY = 10;
+    /*Columnas*/int startX = 10;
+    /*Filas*/int targetY = px/30;
+    /*Columnas*/int targetX =py/30 ;
+
+        finalFY=targetY;
+        finalFX=targetX;
+
+
+    vector<pair<int, int> > path = astar.findPath(startX, startY, targetX, targetY);
+
+
+    int X=path.size();
+    Matriz<int> Camino(1000, 2);
+
+    Camino(1, 1);
+    if (!path.empty()) {
+        cout << "Camino encontrado:" << endl;
+        for (size_t i = 0; i < path.size(); ++i) {
+            Camino(i, 0)=path[i].first;
+            Camino(i, 1)=path[i].second;
+            cout << i<<" (" << Camino(i, 1)<< ", " << Camino(i, 0)<< ")" << endl;
+        }
+
+    } else {
+        cout << "No se encontró un camino." << endl;
+    }
+
+
+    /*Filas*/int FCstartY = 20;
+    /*Columnas*/int FCstartX = 10;
+    /*Filas*/int FCtargetY = px/30;
+    /*Columnas*/int FCtargetX =py/30 ;
+
+        FCfinalFY=FCtargetY;
+        FCfinalFX=FCtargetX;
+
+
+    vector<pair<int, int> > FCpath = astar.findPath(startX, startY, targetX, targetY);
+
+    Matriz<int> FCCamino(1000, 2);
+
+    FCCamino(1, 1);
+    if (!path.empty()) {
+        cout << "Camino encontrado:" << endl;
+        for (size_t i = 0; i < FCpath.size(); ++i) {
+            FCCamino(i, 0)=FCpath[i].first;
+            FCCamino(i, 1)=FCpath[i].second;
+            cout << i<<" (" << FCCamino(i, 1)<< ", " << FCCamino(i, 0)<< ")" << endl;
+        }
+
+    } else {
+        cout << "No se encontró un camino." << endl;
+    }
+
     /* *** Con estas lineas de codigo preparamos el entorno para graficos y sonidos *** */
     allegro_init();
     install_keyboard();
@@ -314,17 +467,31 @@ int main ()
     //Ingresamos la ilustracion de la muerte de pacman
     muertebmp = load_bitmap("muerte.bmp",NULL);
    //invocamos al constructor fantasma
-   fantasma A(30*3,30*4);
-   fantasma B(30*10, 30*11);
+   fantasma A(30*10,30*10);
+   fantasma B(30*14, 30*8);
+   fantasma C (30*18, 30*10);
+   fantasma D(30*10, 30*10);
 
-
+    int j=0;
+    int k=0;
+    int TargetY=targetY;
+    int TargetX=targetX;
+    int FCTargetY=FCtargetY;
+    int FCTargetX=FCtargetX;
+    int TmF1=0;
+    int TmF2=0;
+    int TmF3=0;
+    int TmF4=0;
+    int T=0;
     //condicion de while que se ejecutara hasta que se presione la tecla de escape
     while(!key[KEY_ESC] && game_over())
     {
+        T++;
 
         //insertamos los movimientos anteriores
         anterior_px = px;
         anterior_py = py;
+
         //necesitamos mover al pacman , aplicamos la variable direccion
         if (key[KEY_RIGHT])
             dir = 1;
@@ -379,8 +546,109 @@ int main ()
 
         dibujar_mapa();
         dibujar_personaje();
-        A.mover_fantasma();
-        B.mover_fantasma();
+        if(T==0){
+            TmF1=T;
+        }
+        if(TmF1==0){
+
+            cout << "Tar "<<i<<" (" << targetY << ", " << targetX << ")" << endl;
+            cout << "Final "<<i<<" (" << finalFX << ", " << finalFY<< ")" << endl;
+            cout << "Camm "<<i<<" (" << Camino(i, 1)<< ", " << Camino(i, 0)<< ")" << endl;
+            if( finalFX==Camino(i, 1) && finalFY==Camino(i, 0)){
+                path.clear();
+                 /*Filas*/int startXNew=Camino(i, 0) ;
+
+                /*Columnas*/int startYNew = Camino(i, 1);
+                /*Filas*/  int targetXNew = py/30;
+                /*Columnas*/ int targetYNew= px/30;
+
+                TargetY=targetYNew;
+                TargetX=targetXNew;
+
+                vector<pair<int, int> >Newpath = astar.findPath(startXNew, startYNew, targetXNew, targetYNew);
+                cout << "Camino encontrado:" << endl;
+                cout <<Camino(i, 1)<<","<<Camino(i, 0)<<endl;
+                cout << "Camino encontrado:" << endl;
+                Matriz<int> Camino1(Newpath.size(), 2);
+                if (!Newpath.empty()) {
+                cout << "Camino encontrado:" << endl;
+                for (j = 0; j < Newpath.size(); ++j) {
+                Camino1(j, 0)=Newpath[j].first;
+                Camino1(j, 1)=Newpath[j].second;
+                Camino(j, 1)= Camino1(j, 1);
+                Camino(j, 0)= Camino1(j, 0);
+                cout << j<<" (" <<Camino(j, 1)<< ", " << Camino(j, 0)<< ")" << endl;
+                }
+                finalFY=Camino(j-1, 0);
+                finalFX=Camino(j-1, 1);
+                ;
+               }
+            i=0;
+            }
+            cout << "Fantasma"<<i<<" (" << Camino(i, 1)<< ", " << Camino(i, 0)<< ")" << endl;
+            A.Buscarpacman_fantasma(Camino(i, 1)*30,Camino(i, 0)*30);
+            i++;
+            cout <<px/30<<","<<py/30<< endl;
+        }
+        if(T==60){
+            TmF2=T;
+        }
+         if(TmF2==60){
+            B.mover_fantasma();
+         }
+        if(T==80){
+            TmF3=T;
+        }
+         if(TmF3==80){
+
+             cout << "Tar "<<k<<" (" << FCtargetY << ", " << FCtargetX << ")" << endl;
+            cout << "Final "<<k<<" (" << FCfinalFX << ", " << FCfinalFY<< ")" << endl;
+            cout << "Camm "<<k<<" (" << FCCamino(k, 1)<< ", " << FCCamino(k, 0)<< ")" << endl;
+            if( FCfinalFX==FCCamino(k, 1) && FCfinalFY==FCCamino(k, 0)){
+                path.clear();
+                 /*Filas*/int FCstartXNew=FCCamino(k, 0) ;
+
+                /*Columnas*/int FCstartYNew = FCCamino(k, 1);
+                /*Filas*/  int FCtargetXNew = py/30;
+                /*Columnas*/ int FCtargetYNew= px/30;
+
+                FCTargetY=FCtargetYNew;
+                FCTargetX=FCtargetXNew;
+
+                vector<pair<int, int> >FCNewpath = astar.findPath(FCstartXNew, FCstartYNew, FCtargetXNew, FCtargetYNew);
+                cout << "Camino encontrado:" << endl;
+                cout <<FCCamino(k, 1)<<","<<FCCamino(k, 0)<<endl;
+                cout << "Camino encontrado:" << endl;
+                Matriz<int> FCCamino1(FCNewpath.size(), 2);
+                if (!FCNewpath.empty()) {
+                cout << "Camino encontrado:" << endl;
+                for (j = 0; j < FCNewpath.size(); ++j) {
+                FCCamino1(j, 0)=FCNewpath[j].first;
+                FCCamino1(j, 1)=FCNewpath[j].second;
+                FCCamino(j, 1)= FCCamino1(j, 1);
+                FCCamino(j, 0)= FCCamino1(j, 0);
+                cout << j<<" (" <<FCCamino(j, 1)<< ", " << FCCamino(j, 0)<< ")" << endl;
+                }
+                FCfinalFY=FCCamino(j-1, 0);
+                FCfinalFX=FCCamino(j-1, 1);
+                ;
+               }
+            k=0;
+            }
+            cout << "Fantasma"<<k<<" (" << FCCamino(i, 1)<< ", " << FCCamino(i, 0)<< ")" << endl;
+            C.Buscarpacman_fantasma(FCCamino(k, 1)*30,FCCamino(k, 0)*30);
+            k++;
+            cout <<px/30<<","<<py/30<< endl;
+         }
+
+        if(T==100){
+            TmF4=T;
+        }
+         if(TmF4==100){
+            D.mover_fantasma();
+         }
+
+
         pantalla();
         //darle un tiempo al programa para poder ver el tiempo de pacman
         rest(100);//7- milisegundos para esperar
