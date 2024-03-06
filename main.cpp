@@ -4,7 +4,7 @@
 #include <cstdlib>
 #define MAXFILAS 20
 #define MAXCOL 32
-
+#include <ctime>
 using namespace std;
 
 //Creamos el buffer donde estara el mapa
@@ -46,12 +46,15 @@ int anterior_py;
 
 //mapa del nivel donde estara los muros
 //en el mapa consideraremos a las X como el muro y las o como la comida del pacman
+int fruta_x, fruta_y;
+bool fruta_visible= false;
+int tiempo_anterior =0;
 
-
- char mapa[MAXFILAS][MAXCOL]=
+bool fruta_comida =false;
+char mapa[MAXFILAS][MAXCOL]=
 {
     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-    "X  o |F o o o XXXXX o o o| o  X",
+    "X  o | o o o XXXXX o o o| o  X",
     "X XXX XXXXX XXXXX XXXXX XXX X",
     "XoXXX XXXXX XXXXX XXXXX XXXoX",
     "X      o|o   o o   o|o      X",
@@ -59,19 +62,37 @@ int anterior_py;
     "X    |XX    |XXX|    XX     X",
     "XoXXXoXXXXXX XXX XXXXXXoXXXoX",
     "X XXXoXX ooo|ooo|ooo XXoXXX X",
-    " o   |XX XXXXXXXXXXX XX|F   o ",
+    " o   |XX XXXXXXXXXXX XX|   o ",
     "X XXXoXX XXXXXXXXXXX XXoXXX X",
     "XoXXXoXX oo |ooo|ooo XXoXXXoX",
     "X XXXoXXXXXX XXX XXXXXXoXXX X",
     "X     XX     XXX     XX     X",
     "X XXXoXX XXXXXXXXXXX XXoXXX X",
-    "XoXXX F| o| o o o o o |o |XXXoX",
+    "XoXXX | o| o o o o o |o |XXXoX",
     "X XXXoXXXX XXXXXXXX XXX XXX X",
     "XoXXXoXXXX          XXX XXXoX",
     "X  o |o o  XXXXXXXX o o| o  X",
     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
 };
+void generar_pfruta()
+{
+    fruta_comida =false;
+    do
+    {
+        fruta_x = rand()% MAXCOL;
+        fruta_y =rand()%MAXFILAS;
+    }
+//GENERA HASTA ENCONTRAR POSICION VALIDA
+    while (mapa[fruta_y][fruta_x]=='X');
+}
+void dibujarfruta (BITMAP* buffer, BITMAP* fruta)
+{
+    if(fruta_visible)
+    {
+        draw_sprite(buffer, fruta, fruta_x * 30, fruta_y * 30);
 
+    }
+}
 
 //funcion para dibujar el mapa
 void dibujar_mapa()
@@ -100,17 +121,27 @@ void dibujar_mapa()
 
                     //verificamos si pacman esta en esa posicion
                     mapa[row][col] = ' '; //no habra nada osea se borra
+                    fruta_comida=true;
                 }
             }
-             else if(mapa[row][col] == 'F')
-             {
-                 draw_sprite(buffer, fruta, col * 30, row * 30);
-             }
+
+            else if(mapa[row][col] == 'F')
+            {
+                draw_sprite(buffer, fruta, col * 30, row * 30);
+                if (py /30 == row && px / 30 == col)
+                {
+                    //elimina la fruta
+                    mapa [row][col]= ' ';
+                    fruta_comida = true;
+
+                    fruta_visible=false;
+                }
             }
-
-
         }
 
+
+    }
+    dibujarfruta(buffer, fruta);
 }
 //Funcion para inicializar la pantalla
 void pantalla()
@@ -127,6 +158,19 @@ void dibujar_personaje()
 
 
 }
+// Agregué una función llamada manejar_teclado() para manejar los eventos de teclado y actualizar la dirección del pacman en consecuencia.
+void manejar_teclado()
+{
+    if (key[KEY_RIGHT])
+        dir = 1;
+    else if (key[KEY_LEFT])
+        dir = 0;
+    else if (key[KEY_UP])
+        dir = 2;
+    else if (key[KEY_DOWN])
+        dir = 3;
+}
+
 
 //funcion gameover para cuando pacman muera
 bool game_over()
@@ -289,11 +333,11 @@ void fantasma::mover_fantasma()
     else if (_x >= 870)
         _x = -30;
 
-
 }
 int main ()
 {
     /* *** Con estas lineas de codigo preparamos el entorno para graficos y sonidos *** */
+
     allegro_init();
     install_keyboard();
     set_color_depth(32);
@@ -301,10 +345,13 @@ int main ()
 
     /* ******************************************************************************** */
     //debemos inicializar allegro para tener o usar sonidos
-     if (install_sound(DIGI_AUTODETECT, MIDI_AUTODETECT, NULL) != 0) {
-       allegro_message("Error: inicializando sistema de sonido\n%s\n", allegro_error);
-       return 1;
+    if (install_sound(DIGI_AUTODETECT, MIDI_AUTODETECT, NULL) != 0)
+    {
+        allegro_message("Error: inicializando sistema de sonido\n%s\n", allegro_error);
+        return 1;
     }
+    //generar tiempo
+    srand(time(NULL));
     //ajustamos ell volumen
     set_volume(70, 70);
 
@@ -326,11 +373,11 @@ int main ()
 
     //Ingresamos la ilustracion de la muerte de pacman
     muertebmp = load_bitmap("muerte.bmp",NULL);
-   //invocamos al constructor fantasma
+    //invocamos al constructor fantasma
 
     fruta = load_bitmap("fruta.bmp", NULL);
-   fantasma A(30*3,30*4);
-   fantasma B(30*10, 30*11);
+    fantasma A(30*3,30*4);
+    fantasma B(30*10, 30*11);
 
 
     //condicion de while que se ejecutara hasta que se presione la tecla de escape
@@ -385,6 +432,14 @@ int main ()
                 dir =4 ; //pacman no se movera ya que no hay una opcion para que se mueva
         }
 
+        int tiempoactual =clock() / (CLOCKS_PER_SEC/1000);
+
+        if(tiempoactual - tiempo_anterior>=6000)
+        {
+            generar_pfruta();
+            fruta_visible =true;
+            tiempo_anterior = tiempoactual;
+        }
         //debemos crear una direcion para cuando tome atajos
         if(px <= -30)
             px = 870; //atajo de la izquierda
@@ -396,6 +451,7 @@ int main ()
         dibujar_personaje();
         A.mover_fantasma();
         B.mover_fantasma();
+        dibujarfruta(buffer, fruta);
         pantalla();
         //darle un tiempo al programa para poder ver el tiempo de pacman
         rest(100);//7- milisegundos para esperar
@@ -412,12 +468,6 @@ int main ()
 
     }
 
-
     return 0;
 }
 END_OF_MAIN ()
-
-
-
-//HOLA
-
