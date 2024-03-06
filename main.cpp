@@ -19,6 +19,7 @@ BITMAP *comida;
 //Debemos crear cuando muere pacman
 BITMAP *muertebmp;
 
+BITMAP *fruta;
 //implementaremos la musica
 //implementamos la musica para juego
 SAMPLE* musica1;
@@ -45,10 +46,12 @@ int anterior_py;
 
 //mapa del nivel donde estara los muros
 //en el mapa consideraremos a las X como el muro y las o como la comida del pacman
-char mapa[MAXFILAS][MAXCOL]=
+
+
+ char mapa[MAXFILAS][MAXCOL]=
 {
     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-    "X  o |o o o XXXXX o o o| o  X",
+    "X  o |F o o o XXXXX o o o| o  X",
     "X XXX XXXXX XXXXX XXXXX XXX X",
     "XoXXX XXXXX XXXXX XXXXX XXXoX",
     "X      o|o   o o   o|o      X",
@@ -56,18 +59,19 @@ char mapa[MAXFILAS][MAXCOL]=
     "X    |XX    |XXX|    XX     X",
     "XoXXXoXXXXXX XXX XXXXXXoXXXoX",
     "X XXXoXX ooo|ooo|ooo XXoXXX X",
-    " o   |XX XXXXXXXXXXX XX|   o ",
+    " o   |XX XXXXXXXXXXX XX|F   o ",
     "X XXXoXX XXXXXXXXXXX XXoXXX X",
     "XoXXXoXX oo |ooo|ooo XXoXXXoX",
     "X XXXoXXXXXX XXX XXXXXXoXXX X",
     "X     XX     XXX     XX     X",
     "X XXXoXX XXXXXXXXXXX XXoXXX X",
-    "XoXXX| o| o o o o o |o |XXXoX",
+    "XoXXX F| o| o o o o o |o |XXXoX",
     "X XXXoXXXX XXXXXXXX XXX XXX X",
     "XoXXXoXXXX          XXX XXXoX",
     "X  o |o o  XXXXXXXX o o| o  X",
     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
 };
+
 
 //funcion para dibujar el mapa
 void dibujar_mapa()
@@ -96,14 +100,17 @@ void dibujar_mapa()
 
                     //verificamos si pacman esta en esa posicion
                     mapa[row][col] = ' '; //no habra nada osea se borra
-
-
                 }
-
-
             }
+             else if(mapa[row][col] == 'F')
+             {
+                 draw_sprite(buffer, fruta, col * 30, row * 30);
+             }
+            }
+
+
         }
-    }
+
 }
 //Funcion para inicializar la pantalla
 void pantalla()
@@ -132,7 +139,7 @@ bool game_over()
         for (col  = 0 ; col < MAXCOL ; col++)
         {
             //aplicamos la condicion en donde alla una X ponda la imagen del muro
-            if (mapa[row][col] == 'o' )
+            if (mapa[row][col] == 'o'|| mapa [row][col]== 'F' )
                 return true; //si regresa verdad aun hay comida en el mapa
         }
     }
@@ -148,6 +155,11 @@ class fantasma
     BITMAP *enemigobmp;
 //Creamps el fantasma
     BITMAP *enemigo;
+
+    BITMAP *fantasmaAzul;
+
+    BITMAP *fantasmaAzulbmp;
+
 
 //creamos la direccion para los fantasmas
     int fdir ;
@@ -175,7 +187,8 @@ fantasma::fantasma(int x, int y)
     enemigo = create_bitmap(30,30);
     //creamos la imagen del fantasma
     enemigobmp = load_bitmap("enemigo.bmp",NULL);
-
+    fantasmaAzul = create_bitmap(30,30);
+    fantasmaAzulbmp =load_bitmap("fantasmaAzul.bmp",NULL);
 
 }
 //realizamos las funciones
@@ -314,6 +327,8 @@ int main ()
     //Ingresamos la ilustracion de la muerte de pacman
     muertebmp = load_bitmap("muerte.bmp",NULL);
    //invocamos al constructor fantasma
+
+    fruta = load_bitmap("fruta.bmp", NULL);
    fantasma A(30*3,30*4);
    fantasma B(30*10, 30*11);
 
