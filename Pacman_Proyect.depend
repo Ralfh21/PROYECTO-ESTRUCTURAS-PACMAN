@@ -4,25 +4,9 @@
 	<stdio.h>
 	<cstdlib>
 
-1708474272 source:c:\users\user\documents\github\proyecto-estructuras-pacman\main.cpp
+1709752028 source:c:\users\usuario\documents\github\proyecto-estructuras-pacman\main.cpp
 	<allegro.h>
 	<stdio.h>
 	<cstdlib>
-
-1709606038 source:c:\users\user\documents\pacman\main.cpp
-	<allegro.h>
-	<stdio.h>
-	<AStar.h>
-	<Matriz.h>
-	<cstdlib>
-
-1709499373 c:\users\user\documents\pacman\include\astar.h
-	<iostream>
-	<vector>
-	<queue>
-	<cmath>
-	<algorithm>
-
-1709484244 c:\users\user\documents\pacman\include\matriz.h
-	<iostream>
+	<ctime>
 
