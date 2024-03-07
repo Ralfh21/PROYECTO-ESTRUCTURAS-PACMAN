@@ -1,31 +1,58 @@
 #include <iostream>
 #include <vector>
-#include <queue>
+#include <queue>//Cola prioritaria
 #include <cmath>
 #include <algorithm>
 
 using namespace std;
 
 class AStar {
+private:
+    // Definición de una estructura para representar un nodo en el grafo
+    struct Node {
+        int x, y; // Coordenadas del nodo
+        double cost; // Costo actual para llegar a este nodo
+        double heuristic; // Valor heuristico para este nodo
+
+        Node(int _x, int _y, double _cost, double _heuristic) : x(_x), y(_y), cost(_cost), heuristic(_heuristic) {}
+
+
+        bool operator<(const Node &other) const {
+            return (cost + heuristic) > (other.cost + other.heuristic); // compara dos nodos, el actual y otro nodo (other)
+            //retorna TRUE si el nodo actual tiene una prioridad menor que el otro nodo, y FAlSE en caso contrario
+        }
+    };
+
+    // Función para calcular la distancia Euclidiana entre dos punto
+    //Pitagoras
+    double euclideanDistance(int x1, int y1, int x2, int y2) {
+        return sqrt(pow(x1 - x2, 2) + pow(y1 - y2, 2));
+    }
+
 public:
     AStar(const vector<vector<int> >& grid) : grid(grid) {}
 
     vector<pair<int, int> > findPath(int startX, int startY, int targetX, int targetY) {
-        int numRows = grid.size();
-        int numCols = grid[0].size();
+        int numRows = grid.size();//NUmero de Filas de la matriz del grafo
+        int numCols = grid[0].size();//Numero de Columnas de la matriz del grafo
 
         // Direcciones posibles: arriba, abajo, izquierda, derecha
-        int dx[] = {-1, 1, 0, 0};
-        int dy[] = {0, 0, -1, 1};
+        //-1 movimiento hacia la izquierda y 1 el movimiento hacia la derecha.
+        int dx[] = {-1, 1, 0, 0};//desplazamientos horizontales posibles
+        //-1 movimiento hacia arriba y 1 el movimiento hacia abajo
+        int dy[] = {0, 0, -1, 1};//contiene los desplazamientos verticales posibles
 
-        // Inicialización de la cola de prioridad para almacenar los nodos a visitar
+        // Inicialización de la para almacenar los nodos a visitar.cola ordena de menor a mayos los nodos ingresados
         priority_queue<Node> pq;
+        // calcula la distancia euclidiana entre el nodo inicial y el nodo objetivo
         pq.push(Node(startX, startY, 0.0, euclideanDistance(startX, startY, targetX, targetY)));
 
-        // Vector para almacenar el nodo padre de cada nodo
+
+        //Inicializa cada fila de la matriz parent con un vector de pares de enteros con (-1, -1)
         vector<vector<pair<int, int> > > parent(numRows, vector<pair<int, int> >(numCols, make_pair(-1, -1)));
 
-        // Vector para almacenar el costo actual para llegar a cada nodo
+        //Cada celda de esta matriz bidimencional almacenará el costo acumulado para llegar a ese nodo desde el nodo inicial
+
         vector<vector<double> > cost(numRows, vector<double>(numCols, INFINITY));
         cost[startX][startY] = 0.0;
 
@@ -36,21 +63,6 @@ public:
 
             int x = current.x;
             int y = current.y;
-
-            // Si llegamos al nodo objetivo, construimos el camino de regreso
-            if (x == targetX && y == targetY) {
-                vector<pair<int, int> > path;
-                while (x != startX || y != startY) {
-                    path.push_back(make_pair(x, y));
-                    int prevX = parent[x][y].first;
-                    int prevY = parent[x][y].second;
-                    x = prevX;
-                    y = prevY;
-                }
-                path.push_back(make_pair(startX, startY));
-                reverse(path.begin(), path.end());
-                return path;
-            }
 
             // Explorar los nodos adyacentes
             for (int i = 0; i < 4; ++i) {
@@ -67,30 +79,26 @@ public:
                     }
                 }
             }
+
+            // Si llegamos al nodo objetivo, construimos el camino de regreso
+            if (x == targetX && y == targetY) {
+                vector<pair<int, int> > path;
+                while (x != startX || y != startY) {
+                    path.push_back(make_pair(x, y));
+                    int prevX = parent[x][y].first;
+                    int prevY = parent[x][y].second;
+                    x = prevX;
+                    y = prevY;
+                }
+                path.push_back(make_pair(startX, startY));
+                reverse(path.begin(), path.end());
+                return path;
+            }
+
         }
 
         // Si no se encuentra un camino, devolver un vector vacío
         return vector<pair<int, int> >();
-    }
-
-private:
-    // Definición de una estructura para representar un nodo en el grafo
-    struct Node {
-        int x, y; // Coordenadas del nodo
-        double cost; // Costo actual para llegar a este nodo
-        double heuristic; // Valor heurístico para este nodo
-
-        Node(int _x, int _y, double _cost, double _heuristic) : x(_x), y(_y), cost(_cost), heuristic(_heuristic) {}
-
-        // Sobrecarga del operador "<" para comparar nodos basado en su costo total
-        bool operator<(const Node &other) const {
-            return (cost + heuristic) > (other.cost + other.heuristic);
-        }
-    };
-
-    // Función para calcular la distancia Euclidiana entre dos puntos
-    double euclideanDistance(int x1, int y1, int x2, int y2) {
-        return sqrt(pow(x1 - x2, 2) + pow(y1 - y2, 2));
     }
 
     vector<vector<int> > grid;
