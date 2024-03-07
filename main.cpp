@@ -4,10 +4,15 @@
 #include <Matriz.h>
 //incluimos esta libreria para valores randomicos
 #include <cstdlib>
-#define MAXFILAS 21
-#define MAXCOL 32
+#define MAXFILAS 50
+#define MAXCOL 50
 
 using namespace std;
+
+FONT *mi_fuente; // Declaraciï¿½n global
+
+char nombre_jugador[50];
+
 
 //Creamos el buffer donde estara el mapa
 BITMAP *buffer;
@@ -45,6 +50,53 @@ int py = 30*18;
 int anterior_px;
 int anterior_py;
 
+//Funcion para ingresar el nombre
+void solicitar_nombre(BITMAP *buffer) {
+
+    // Dibujar el resto de la pantalla
+    rectfill(buffer, 100, 200, 780, 400, makecol(0, 0, 0)); // Rectï¿½ngulo de fondo
+    textout_centre_ex(buffer, font, "ï¿½Bienvenido a Pacman!", SCREEN_W / 2, 220, makecol(255, 255, 255), -1); // Mensaje de bienvenida
+    textout_centre_ex(buffer, font, "Por favor, ingresa tu nombre:", SCREEN_W / 2, 270, makecol(255, 255, 255), -1); // Mensaje de solicitud de nombre
+    hline(buffer, 200, 310, 680, makecol(255, 255, 255)); // Lï¿½nea de separaciï¿½n
+
+    // Actualizar el buffer
+    blit(buffer, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
+
+    char nombre_temporal[50] = {0};
+    int indice = 0;
+
+    while (true) {
+        // Esperar a que el usuario presione una tecla
+        int key = readkey();
+
+        // Extraer el cï¿½digo ASCII y el scan code de la tecla presionada
+        int ascii_code = key & 0xff;
+        int scan_code = (key >> 8) & 0xff;
+
+        // Si se presiona Enter, salimos del bucle
+        if (ascii_code == 13) {
+            break;
+        }
+
+        // Si se presiona una tecla alfabï¿½tica o un espacio y aï¿½n no hemos alcanzado el lï¿½mite de caracteres, agregamos la tecla al nombre temporal
+        if (((ascii_code >= 'A' && ascii_code <= 'Z') || (ascii_code >= 'a' && ascii_code <= 'z') || ascii_code == ' ') && indice < 49) {
+            nombre_temporal[indice++] = ascii_code;
+            nombre_temporal[indice] = '\0'; // Aï¿½adir terminador nulo al final de la cadena
+        }
+
+        // Actualizar el buffer con el nombre temporal
+        clear(buffer);
+        rectfill(buffer, 100, 200, 780, 400, makecol(0, 0, 0)); // Rectï¿½ngulo de fondo
+        textout_centre_ex(buffer, font, "ï¿½Bienvenido a Pacman!", SCREEN_W / 2, 220, makecol(255, 255, 255), -1); // Mensaje de bienvenida
+        textout_centre_ex(buffer, font, "Por favor, ingresa tu nombre:", SCREEN_W / 2, 270, makecol(255, 255, 255), -1); // Mensaje de solicitud de nombre
+        hline(buffer, 200, 310, 680, makecol(255, 255, 255)); // Lï¿½nea de separaciï¿½n
+        textout_centre_ex(buffer, font, nombre_temporal, SCREEN_W / 2, 340, makecol(255, 255, 255), -1); // Nombre temporal
+        blit(buffer, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
+    }
+
+    // Copiar el nombre temporal en la variable nombre_jugador
+    strcpy(nombre_jugador, nombre_temporal);
+}
 
 //mapa del nivel donde estara los muros
 //en el mapa consideraremos a las X como el muro y las o como la comida del pacman
@@ -120,6 +172,8 @@ void dibujar_mapa()
         }
     }
 }
+
+
 //Funcion para inicializar la pantalla
 void pantalla()
 {
@@ -301,7 +355,7 @@ void fantasma::Buscarpacman_fantasma(int x,int y)
 
     _x=x;
     _y=y;
-//mandamos a ilutrar al fantasma
+    //mandamos a ilutrar al fantasma
     dibujar_fantasma();
     //implementamos la funcion del choque pacman
     choque_pacman();
@@ -317,6 +371,7 @@ void fantasma::Buscarpacman_fantasma(int x,int y)
 
 
 }
+
 int main ()
 {
     int i=0;
@@ -403,7 +458,7 @@ int main ()
         }
 
     } else {
-        cout << "No se encontró un camino." << endl;
+        cout << "No se encontrÃ³ un camino." << endl;
     }
 
 
@@ -430,7 +485,7 @@ int main ()
         }
 
     } else {
-        cout << "No se encontró un camino." << endl;
+        cout << "No se encontrÃ³ un camino." << endl;
     }
 
     /* *** Con estas lineas de codigo preparamos el entorno para graficos y sonidos *** */
@@ -458,6 +513,9 @@ int main ()
     roca = load_bitmap("roca.bmp", NULL);
     //creamos la ilustracion de la imagen
     pacbmp = load_bitmap("pacman.bmp",NULL);
+
+       solicitar_nombre(buffer); // Llamar a la funciï¿½n para solicitar el nombre antes de comenzar el juego
+
 
     //peque;o buffer
     //debemos medir la dimension de la imagen que es 33x33
