@@ -53,5 +53,7 @@ El código proporcionado es un programa escrito en C++ utilizando la biblioteca 
 En resumen, el código implementa un juego básico de Pac-Man utilizando la biblioteca Allegro en C++.
 
 ⚙️ Instalación y Ejecución
+
 Clona este repositorio en tu máquina local.
+
 Deberas instalar los componenetes necesarios para que allegro se ejecute correctamente, cabe recalcar que allgero se ejecuta correctamente en codeblocks version 17.12.
