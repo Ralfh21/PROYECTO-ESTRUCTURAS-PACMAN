@@ -25,7 +25,12 @@ BITMAP *pacman;
 BITMAP *comida;
 //Debemos crear cuando muere pacman
 BITMAP *muertebmp;
-
+// Variables de las vidas del pacman
+BITMAP *vida1;
+BITMAP *vida2;
+BITMAP *vida3;
+//PAra el mensaje de las vidas
+BITMAP *mensaje;
 //implementaremos la musica
 //implementamos la musica para juego
 SAMPLE* musica1;
@@ -33,8 +38,6 @@ SAMPLE* musica1;
 SAMPLE *bolita;
 //implementamos la musica para cuando muera el pacman
 SAMPLE *muerte;
-
-
 
 
 //debemos crear una variale direccion para poder observar cuando vaya a la oozquierda o derecha
@@ -49,6 +52,10 @@ int py = 30*18;
 //Debemos crear una posicion anterior de la que tiene pacman
 int anterior_px;
 int anterior_py;
+
+// Variable para llevar la cuenta de las vidas
+int vidas = 3;
+
 
 //Funcion para ingresar el nombre
 void solicitar_nombre(BITMAP *buffer) {
@@ -113,29 +120,66 @@ struct Coordenadas {
 };
 char mapa[MAXFILAS][MAXCOL]=
 {
-    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-    "X  o |o o o XXXXX o o o| o  X",
-    "X XXX XXXXX XXXXX XXXXX XXX X",
-    "XoXXX XXXXX XXXXX XXXXX XXXoX",
-    "X      o|o   o o   o|o      X",
-    "XoXXXoXX XXXXXXXXXXX XXoXXXoX",
-    "X    |XX    |XXX|    XX     X",
-    "XoXXXoXXXXXX XXX XXXXXXoXXXoX",
-    "X XXXoXX ooo|ooo|ooo XXoXXX X",
-    " o   |XX XXXXX|XXXXX XX|   o ",
-    "X XXXoXX X    |    X XXoXXX X",
-    "X XXXoXX XXXXXXXXXXX XXoXXX X",
-    "XoXXXoXX oo |ooo|ooo XXoXXXoX",
-    "X XXXoXXXXXX XXX XXXXXXoXXX X",
-    "X     XX     XXX     XX     X",
-    "X XXXoXX XXXXXXXXXXX XXoXXX X",
-    "XoXXX| o| o o o o o |o |XXXoX",
-    "X XXXoXXXX XXXXXXXX XXX XXX X",
-    "XoXXXoXXXX          XXX XXXoX",
-    "X  o |o o  XXXXXXXX o o| o  X",
-    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX        ",
+    "XoooooooooooooooooooooooooooX       ",
+    "XoXXXoXXXXXoXXXXXoXXXXXoXXXoX        ",
+    "XoXXXoXXXXXoXXXXXoXXXXXoXXXoX       ",
+    "XooFoooooooooooooooooooFooooX          ",
+    "XoXXXoXXoXXXXXXXXXXXoXXoXXXoX     ",
+    "XoooooXXoooooXXXoooooXXoooooX",
+    "XoXXXoXXXXXX XXX XXXXXXoXXXoX      ",
+    "XoXXXoXXoooooooooooooXXoXXXoX      ",
+    " oooooXXoXXXXX|XXXXXoXXooooo        ",
+    "XoXXXoXXoX    |    XoXXoXXXoX      ",
+    "XoXXXoXXoXXXXXXXXXXXoXXoXXXoX      ",
+    "XoXXXoXXoooooooooooooXXoXXXoX      ",
+    "XoXXXoXXXXXXoXXXoXXXXXXoXXXoX      ",
+    "XoooooXXoooooXXXoooooXXoooooX      ",
+    "XoXXXoXXoXXXXXXXXXXXoXXoXXXoX      ",
+    "XoXXXoooooooooooFoooooooXXXoX      ",
+    "XoXXXoXXXXoXXXXXXXXoXXXoXXXoX      " ,
+    "XoXXXoXXXXooooooooooXXXoXXXoX      ",
+    "XooooooooooXXXXXXXXoooooooooX      ",
+    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX      ",
 };
+void dibujar_mensaje(){
+    draw_sprite(buffer,mensaje,900,475);//dibujamos el mensaje
 
+}
+// Función para dibujar las vidas del pacman
+void dibujar_vidas() {
+    if (vidas >= 1) {
+        draw_sprite(buffer, vida1, 900, 530); // Dibujar primera vida
+    }
+    if (vidas >= 2) {
+        draw_sprite(buffer, vida2, 960, 530); // Dibujar segunda vida
+    }
+    if (vidas >= 3) {
+        draw_sprite(buffer, vida3, 1030, 530); // Dibujar tercera vida
+    }
+}
+// Función para verificar el fin de juego
+bool verificar_fin_de_juego() {
+    return vidas <= 0; // Devuelve verdadero si el contador de vidas es igual o menor que cero
+}
+// Función para mostrar el mensaje de fin de juego
+void mostrar_mensaje_de_fin_de_juego() {
+    cout << "¡Fin del juego! Te has quedado sin vidas.\n";
+}
+// Función para eliminar una vida del pacman y verificar el fin del juego
+void perder_vida() {
+    if (vidas > 0) {
+        vidas--; // Decrementar contador de vidas
+        clear(buffer); // Limpiar buffer
+
+        // Verificar si el juego ha terminado
+        if (verificar_fin_de_juego()) {
+            mostrar_mensaje_de_fin_de_juego();
+            rest(1000); // Esperar 1 segundos antes de salir del juego
+            exit(0);
+        }
+    }
+}
 //funcion para dibujar el mapa
 void dibujar_mapa()
 {
@@ -177,7 +221,8 @@ void dibujar_mapa()
 //Funcion para inicializar la pantalla
 void pantalla()
 {
-    blit(buffer, screen, 0,0,0,0,880,600);
+    blit(buffer, screen, 0,0,0,0,1120,600);
+    
 }
 //funcion para dibujar al pacman, pintar a pacman
 void dibujar_personaje()
@@ -217,6 +262,20 @@ class fantasma
     BITMAP *enemigobmp;
 //Creamps el fantasma
     BITMAP *enemigo;
+    BITMAP *fantasAzul;
+    BITMAP *fantasmaAzulbmp;
+    //debemos crear una imagen para cada fantasma
+    //Para el fantasma rojo
+    BITMAP *fantasmaRojo;
+    //Para el fantasma amarillo
+    BITMAP *fantasmaAmarillo;
+    //Para el fantasma celeste
+    BITMAP *fantasmaCeleste;
+    //Para el fantasma celeste
+    BITMAP *fantasmaRosa;
+
+    //Color del fantasma
+    string color;
 
 //creamos la direccion para los fantasmas
     int fdir ;
@@ -225,17 +284,18 @@ class fantasma
     int _y ;
 //creamos un construcctor para poder inicializar todas las variables
 public:
-    fantasma(int x, int y);
+    fantasma(int x, int y,string color);
     //ingresamos las funciones que usamos
     //implementamos constante para cuando haya un cambio
     void dibujar_fantasma() const ;
     void mover_fantasma();
     void choque_pacman();
     void Buscarpacman_fantasma(int x,int y);
+  void set_color(string new_color);
 
 };
 //creamos el constructos para darle los parametros
-fantasma::fantasma(int x, int y)
+fantasma::fantasma(int x, int y,string color)
 {
     _x = x;
     _y = y;
@@ -245,6 +305,19 @@ fantasma::fantasma(int x, int y)
     enemigo = create_bitmap(30,30);
     //creamos la imagen del fantasma
     enemigobmp = load_bitmap("enemigo.bmp",NULL);
+     //Implementamos la imagen que es 30 x 31
+    //Imagen para el fantasma rojo
+     fantasmaRojo = create_bitmap(30, 31);
+    fantasmaRojo = load_bitmap("fantasmarojo.bmp", NULL);
+    //Imagen para el fantasma amarillo
+    fantasmaAmarillo = create_bitmap(30, 30);
+    fantasmaAmarillo = load_bitmap("fantasmaamarillo.bmp", NULL);
+    //Imagen para el fantasma celeste
+    fantasmaCeleste = create_bitmap(30, 31);
+    fantasmaCeleste = load_bitmap("fantasmaceleste.bmp", NULL);
+    //Imagen para el fantasma rosa
+    fantasmaRosa= create_bitmap(30, 28);
+    fantasmaRosa= load_bitmap("fantasmarosa.bmp", NULL);
 
 
 }
@@ -253,7 +326,17 @@ fantasma::fantasma(int x, int y)
 void fantasma::dibujar_fantasma() const
 {
 //imprimir el personaje
-    blit(enemigobmp,enemigo,0,0,0,0,30,30); //lo que hacemos es insertar la posicion la imagen segun la imagen
+    if (color == "rojo")
+    blit(fantasmaRojo, enemigo, 0, 0, 0, 0, 30, 30);
+    else if (color == "amarillo")
+        blit(fantasmaAmarillo, enemigo, 0, 0, 0, 0, 30, 30);
+    else if (color == "celeste")
+        blit(fantasmaCeleste, enemigo, 0, 0, 0, 0, 30, 30);
+    else if (color == "rosa")
+        blit(fantasmaRosa, enemigo, 0, 0, 0, 0, 30, 30);
+
+        else // Si no se especifica un color válido, usamos la imagen predeterminada
+            blit(enemigobmp, enemigo, 0, 0, 0, 0, 30, 30);
     //mandamos a dibujar al fantasma
     draw_sprite(buffer,enemigo,_x,_y); //debemos poner donde tendremos al personaje
 }
@@ -282,6 +365,8 @@ void fantasma::choque_pacman()
             //damos un tiempo
             rest(80);
         }
+        //llamamos a la funcion perder_vida para la perdida de vida del pac
+        perder_vida();
         px = 30*18;
         py = 30*18;
         dir = 4;
@@ -492,7 +577,7 @@ int main ()
     allegro_init();
     install_keyboard();
     set_color_depth(32);
-    set_gfx_mode(GFX_AUTODETECT_WINDOWED, 880,600,0, 0);
+    set_gfx_mode(GFX_AUTODETECT_WINDOWED, 1120,600,0, 0);
 
     /* ******************************************************************************** */
     //debemos inicializar allegro para tener o usar sonidos
@@ -508,7 +593,7 @@ int main ()
     musica1 = load_wav("pacman_beginning.wav"); //Esta musica nos sirve para darle sonido al juego
     muerte = load_wav("pacman_death.wav");//cuando muere pacman
     //Creada del buffer parael mapa
-    buffer = create_bitmap(880,600);
+    buffer = create_bitmap(1230,600);
     //creada e insertar la imagen del muro
     roca = load_bitmap("roca.bmp", NULL);
     //creamos la ilustracion de la imagen
@@ -524,11 +609,19 @@ int main ()
 
     //Ingresamos la ilustracion de la muerte de pacman
     muertebmp = load_bitmap("muerte.bmp",NULL);
+      // Cargar imágenes de las vidas del pacman
+
+    vida1 = load_bitmap("lifepac.bmp", NULL);
+    vida2 = load_bitmap("lifepac.bmp", NULL);
+    vida3 = load_bitmap("lifepac.bmp", NULL);
+
+    //Cargar mensaje vida
+    mensaje=load_bitmap("vidasMensaje.bmp",NULL);
    //invocamos al constructor fantasma
-   fantasma A(30*10,30*10);
-   fantasma B(30*14, 30*8);
-   fantasma C (30*18, 30*10);
-   fantasma D(30*10, 30*10);
+    fantasma A(30*10,30*10,"rojo");
+    fantasma B(30*14, 30*8,"amarillo");
+    fantasma C (30*18, 30*10,"celeste");
+    fantasma D(30*10, 30*10,"rosa");
 
     int j=0;
     int k=0;
@@ -705,6 +798,10 @@ int main ()
          if(TmF4==100){
             D.mover_fantasma();
          }
+
+         dibujar_mensaje();
+        dibujar_vidas();
+
 
 
         pantalla();
