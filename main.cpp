@@ -133,11 +133,10 @@ int anterior_py;
 // Variable para llevar la cuenta de las vidas
 int vidas = 3;
 //en el mapa consideraremos a las X como el muro y las o como la comida del pacman
+//crear la posicion de la fruta 
 int fruta_x, fruta_y;
 bool fruta_visible= false;
-int tiempo_anterior =0;
 bool fruta_comida =false;
-bool pacmanfruta = false;
 //mapa del nivel donde estara los muros
 //en el mapa consideraremos a las X como el muro y las o como la comida del pacman
 
@@ -148,10 +147,10 @@ struct Coordenadas{
 };
 char mapa[MAXFILAS][MAXCOL]={
      "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX        ",
-    "XoooooooooooooooooooooooooooX       ",
+    "XFooooooooooooooooooooooooooX       ",
     "XoXXXoXXXXXoXXXXXoXXXXXoXXXoX        ",
     "XoXXXoXXXXXoXXXXXoXXXXXoXXXoX       ",
-    "XooFoooooooooooooooooooFooooX          ",
+    "XooooooooooooooooooooooFooooX          ",
     "XoXXXoXXoXXXXXXXXXXXoXXoXXXoX     ",
     "XoooooXXoooooXXXoooooXXoooooX",
     "XoXXXoXXXXXX XXX XXXXXXoXXXoX      ",
@@ -169,6 +168,7 @@ char mapa[MAXFILAS][MAXCOL]={
     "XooooooooooXXXXXXXXoooooooooX      ",
     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX      ",
 };
+//sirve para generar una posicion especfica en el mapa 
 void generar_pfruta(int x, int y)
 {
     fruta_comida =false;
@@ -271,6 +271,7 @@ void dibujar_mapa(){
                 if (py/30 ==row && px/30 == col ){
             //verificamos si pacman esta en esa posicion
                     mapa[row][col] = ' '; //no habra nada osea se borra
+                    play_sample(bolita,100,150,1000,0);
                 }
             }
             else if(mapa[row][col] == 'F')
@@ -475,6 +476,7 @@ void fantasma::choque_pacman()
     //revisamos si existe la misma posicion del fantasma con el pacman
     if (py == _y  && px == _x || _y == anterior_py && _x == anterior_px)
     {
+                play_sample(muerte,100,150,1000,0);
         //creamos un bucle for para que se vea el proceso de eliminar el pacman
         for (int j = 0; j<= 5; j++)
         {
@@ -792,7 +794,8 @@ int main ()
     int TmF3=0;
     int TmF4=0;
     int T=0;
-    //condicion de while que se ejecutara hasta que se presione la tecla de escape
+    //condicion de while que se ejecutara hasta que se complete el juego y se llame el gameover
+       play_sample(musica1,100,150,1000,1);
     while(game_over())
     {
         T++;
