@@ -12,7 +12,7 @@
 
 1709752028 D
 
-1709864452 source:c:\users\user\documents\github\proyecto-estructuras-pacman\main.cpp
+1709869052 source:c:\users\user\documents\github\proyecto-estructuras-pacman\main.cpp
 	<allegro.h>
 	<stdio.h>
 	<AStar.h>
@@ -26,13 +26,13 @@
 	<Matriz.h>
 	<cstdlib>
 
-1709861682 c:\users\user\documents\github\proyecto-estructuras-pacman\include\astar.h
+1709863505 c:\users\user\documents\github\proyecto-estructuras-pacman\include\astar.h
 	<iostream>
 	<vector>
 	<queue>
 	<cmath>
 	<algorithm>
 
-1709861682 c:\users\user\documents\github\proyecto-estructuras-pacman\include\matriz.h
+1709860054 c:\users\user\documents\github\proyecto-estructuras-pacman\include\matriz.h
 	<iostream>
 

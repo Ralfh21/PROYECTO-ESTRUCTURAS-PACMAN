@@ -140,11 +140,6 @@ bool fruta_comida =false;
 bool pacmanfruta = false;
 //mapa del nivel donde estara los muros
 //en el mapa consideraremos a las X como el muro y las o como la comida del pacman
-struct MyPair
-{
-    int first[50];
-    int second[2];
-};
 
 struct Coordenadas{
     int x;
