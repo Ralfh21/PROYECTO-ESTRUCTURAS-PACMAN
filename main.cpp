@@ -133,11 +133,10 @@ int anterior_py;
 // Variable para llevar la cuenta de las vidas
 int vidas = 3;
 //en el mapa consideraremos a las X como el muro y las o como la comida del pacman
+//crear la posicion de la fruta 
 int fruta_x, fruta_y;
 bool fruta_visible= false;
-int tiempo_anterior =0;
 bool fruta_comida =false;
-bool pacmanfruta = false;
 //mapa del nivel donde estara los muros
 //en el mapa consideraremos a las X como el muro y las o como la comida del pacman
 struct MyPair
@@ -153,10 +152,10 @@ struct Coordenadas{
 };
 char mapa[MAXFILAS][MAXCOL]={
      "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX        ",
-    "XoooooooooooooooooooooooooooX       ",
+    "XFooooooooooooooooooooooooooX       ",
     "XoXXXoXXXXXoXXXXXoXXXXXoXXXoX        ",
     "XoXXXoXXXXXoXXXXXoXXXXXoXXXoX       ",
-    "XooFoooooooooooooooooooFooooX          ",
+    "XooooooooooooooooooooooFooooX          ",
     "XoXXXoXXoXXXXXXXXXXXoXXoXXXoX     ",
     "XoooooXXoooooXXXoooooXXoooooX",
     "XoXXXoXXXXXX XXX XXXXXXoXXXoX      ",
@@ -174,6 +173,7 @@ char mapa[MAXFILAS][MAXCOL]={
     "XooooooooooXXXXXXXXoooooooooX      ",
     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX      ",
 };
+//sirve para generar una posicion especfica en el mapa 
 void generar_pfruta(int x, int y)
 {
     fruta_comida =false;
