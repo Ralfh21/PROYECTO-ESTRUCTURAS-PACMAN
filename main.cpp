@@ -120,12 +120,7 @@ struct MyPair {
     int second[2];
 };
 
-struct Coordenadas {
-    int x;
-    int y;
 
-    Coordenadas(int _x, int _y) : x(_x), y(_y) {}
-};
 char mapa[MAXFILAS][MAXCOL]=
 {
     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX        ",
