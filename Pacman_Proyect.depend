@@ -10,20 +10,20 @@
 	<cstdlib>
 	<ctime>
 
-1709857060 source:c:\users\user\documents\github\proyecto-estructuras-pacman\main.cpp
+1709859519 source:c:\users\user\documents\github\proyecto-estructuras-pacman\main.cpp
 	<allegro.h>
 	<stdio.h>
 	<AStar.h>
 	<Matriz.h>
 	<cstdlib>
 
-1709855587 c:\users\user\documents\github\proyecto-estructuras-pacman\include\astar.h
+1709858774 c:\users\user\documents\github\proyecto-estructuras-pacman\include\astar.h
 	<iostream>
 	<vector>
 	<queue>
 	<cmath>
 	<algorithm>
 
-1709825942 c:\users\user\documents\github\proyecto-estructuras-pacman\include\matriz.h
+1709484244 c:\users\user\documents\github\proyecto-estructuras-pacman\include\matriz.h
 	<iostream>
 
