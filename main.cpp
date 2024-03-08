@@ -105,6 +105,14 @@ void solicitar_nombre(BITMAP *buffer) {
     strcpy(nombre_jugador, nombre_temporal);
 }
 
+
+int puntuacion = 0; // Variable para almacenar la puntuaci�n
+
+// Funci�n para actualizar la puntuaci�n
+void actualizar_puntuacion(int puntos) {
+    puntuacion += puntos;
+}
+
 //mapa del nivel donde estara los muros
 //en el mapa consideraremos a las X como el muro y las o como la comida del pacman
 struct MyPair {
@@ -215,6 +223,14 @@ void dibujar_mapa()
             }
         }
     }
+
+    if (mapa[nueva_py / 30][nueva_px / 30] == 'o') {
+        // Incrementar la puntuaci�n
+        actualizar_puntuacion(10); // Por ejemplo, aumentamos en 10 puntos por cada bolita comida
+
+        // Cambiar la posici�n de la bolita en el mapa a un espacio en blanco
+        mapa[nueva_py / 30][nueva_px / 30] = ' ';
+    }
 }
 
 
@@ -222,7 +238,7 @@ void dibujar_mapa()
 void pantalla()
 {
     blit(buffer, screen, 0,0,0,0,1120,600);
-    
+
 }
 //funcion para dibujar al pacman, pintar a pacman
 void dibujar_personaje()
