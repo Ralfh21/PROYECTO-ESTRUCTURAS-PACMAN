@@ -13,7 +13,6 @@ FONT *mi_fuente; // Declaracion global
 
 char nombre_jugador[50];
 
-
 //Creamos el buffer donde estara el mapa
 BITMAP *buffer;
 //Creamos el muro del nivel
@@ -25,6 +24,8 @@ BITMAP *pacman;
 BITMAP *comida;
 //Debemos crear cuando muere pacman
 BITMAP *muertebmp;
+//Debemos crear para la fruta de poder del pac man
+BITMAP *fruta;
 // Variables de las vidas del pacman
 BITMAP *vida1;
 BITMAP *vida2;
@@ -38,24 +39,6 @@ SAMPLE* musica1;
 SAMPLE *bolita;
 //implementamos la musica para cuando muera el pacman
 SAMPLE *muerte;
-
-
-//debemos crear una variale direccion para poder observar cuando vaya a la oozquierda o derecha
-
-int dir= 4;//le ponemos direccion 4 para que este quieto
-//debemos darle la posicion donde empezara pacman
-
-int px = 30*18;
-int py = 30*18;
-
-
-//Debemos crear una posicion anterior de la que tiene pacman
-int anterior_px;
-int anterior_py;
-
-// Variable para llevar la cuenta de las vidas
-int vidas = 3;
-
 
 void mostrar_cargando(BITMAP *buffer, int segundos) {
     int contador = 0;
@@ -72,7 +55,6 @@ void mostrar_cargando(BITMAP *buffer, int segundos) {
         progreso = (contador * 100) / (segundos * 1000);
     }
 }
-
 //Funcion para ingresar el nombre
 void solicitar_nombre(BITMAP *buffer) {
 
@@ -139,30 +121,42 @@ void solicitar_nombre(BITMAP *buffer) {
      // Llamamos a la función para mostrar el mensaje de carga durante 10 segundos
     mostrar_cargando(buffer, 10);
 }
+//debemos crear una variale direccion para poder observar cuando vaya a la oozquierda o derecha
+int dir= 4;//le ponemos direccion 4 para que este quieto
+//debemos darle la posicion donde empezara pacman
+int px = 30*18;
+int py = 30*18;
 
-
-
-
-
+//Debemos crear una posicion anterior de la que tiene pacman
+int anterior_px;
+int anterior_py;
+// Variable para llevar la cuenta de las vidas
+int vidas = 3;
+//en el mapa consideraremos a las X como el muro y las o como la comida del pacman
+int fruta_x, fruta_y;
+bool fruta_visible= false;
+int tiempo_anterior =0;
+bool fruta_comida =false;
+bool pacmanfruta = false;
 //mapa del nivel donde estara los muros
 //en el mapa consideraremos a las X como el muro y las o como la comida del pacman
-
-
-struct Coordenadas {
-    int x;
-    int y;
-
-    Coordenadas(int _x, int _y) : x(_x), y(_y) {}
+struct MyPair
+{
+    int first[50];
+    int second[2];
 };
 
-
-char mapa[MAXFILAS][MAXCOL]=
-{
-    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX        ",
-    "XoooooooooooooXoooooooooooooX       ",
+struct Coordenadas{
+    int x;
+    int y;
+    Coordenadas(int _x, int _y) : x(_x), y(_y) {}
+};
+char mapa[MAXFILAS][MAXCOL]={
+     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX        ",
+    "XoooooooooooooooooooooooooooX       ",
     "XoXXXoXXXXXoXXXXXoXXXXXoXXXoX        ",
     "XoXXXoXXXXXoXXXXXoXXXXXoXXXoX       ",
-    "XooFooooooooooXooooooooFooooX          ",
+    "XooFoooooooooooooooooooFooooX          ",
     "XoXXXoXXoXXXXXXXXXXXoXXoXXXoX     ",
     "XoooooXXoooooXXXoooooXXoooooX",
     "XoXXXoXXXXXX XXX XXXXXXoXXXoX      ",
@@ -180,7 +174,21 @@ char mapa[MAXFILAS][MAXCOL]=
     "XooooooooooXXXXXXXXoooooooooX      ",
     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX      ",
 };
+void generar_pfruta(int x, int y)
+{
+    fruta_comida =false;
+    fruta_x = x;
+    fruta_y =y;
 
+}
+void dibujarfruta (BITMAP* buffer, BITMAP* fruta)
+{
+    if(fruta_visible)
+    {
+        draw_sprite(buffer, fruta, fruta_x * 30, fruta_y * 30);
+
+    }
+}
 void dibujar_mensaje(){
     draw_sprite(buffer,mensaje,900,475);//dibujamos el mensaje
 
@@ -201,13 +209,10 @@ void dibujar_vidas() {
 bool verificar_fin_de_juego() {
     return vidas <= 0; // Devuelve verdadero si el contador de vidas es igual o menor que cero
 }
-
-// Función para mostrar el mensaje de fin de juego por consola
+// Función para mostrar el mensaje de fin de juego
 void mostrar_mensaje_de_fin_de_juego() {
     cout << "¡Fin del juego! Te has quedado sin vidas.\n";
 }
-
-
 
 int puntuacion = 0; // Variable para almacenar la puntuacion
 
@@ -215,7 +220,6 @@ int puntuacion = 0; // Variable para almacenar la puntuacion
 void actualizar_puntuacion(int puntos) {
     puntuacion += puntos;
 }
-
 void mostrar_game_over() {
     // Crear un buffer para dibujar
     BITMAP *buffer = create_bitmap(SCREEN_W, SCREEN_H);
@@ -237,8 +241,6 @@ void mostrar_game_over() {
     // Liberar recursos
     destroy_bitmap(buffer);
 }
-
-
 // Función para eliminar una vida del pacman y verificar el fin del juego
 void perder_vida() {
     if (vidas > 0) {
@@ -254,28 +256,42 @@ void perder_vida() {
         }
     }
 }
-
-
-
-
-//Funcion para dibujar el mapa
-void dibujar_mapa() {
+//funcion para dibujar el mapa
+void dibujar_mapa(){
+    //necesitamos columnas y filas definirkas
     int row, col;
+    //creamos bucles para que recorra todo nuestro mapa
+    for(row=0; row<MAXFILAS; row++){
 
-    for(row = 0; row < MAXFILAS; row++) {
-        for (col = 0; col < MAXCOL; col++) {
-            if (mapa[row][col] == 'X') {
-                draw_sprite(buffer, roca, col * 30, row * 30);
-            } else if (mapa[row][col] == 'o') {
-                draw_sprite(buffer, comida, col * 30, row * 30);
-                if (py / 30 == row && px / 30 == col) {
-                    mapa[row][col] = ' ';
+        for (col  = 0 ; col < MAXCOL ; col++){
+            //aplicamos la condicion en donde alla una X ponda la imagen del muro
+            if (mapa[row][col] == 'X' ){
+                //funcion para que se proyecte el muro en cada lugar donde este una X
+                draw_sprite(buffer, roca, col*30, row*30);
+            }
+            else if(mapa[row][col] == 'o' ){
+                //funcion para que se proyecte la comida en cada lugar donde este una X
+                draw_sprite(buffer, comida, col*30, row*30);
+                //necesitamos elimiar la comida cuando pase el pacman
+                if (py/30 ==row && px/30 == col ){
+            //verificamos si pacman esta en esa posicion
+                    mapa[row][col] = ' '; //no habra nada osea se borra
                 }
+            }
+            else if(mapa[row][col] == 'F')
+            {
+                draw_sprite(buffer, fruta, col * 30, row * 30);
+                if (py /30 == row && px / 30 == col)
+                {
+                    //elimina la fruta
+                    mapa [row][col]=' ';
+                }
+
             }
         }
     }
-
-    // Detectar si el pacman come una bolita despu�s de moverse
+    dibujarfruta(buffer,fruta);
+     // Detectar si el pacman come una bolita despu�s de moverse
     int nueva_px = px;
     int nueva_py = py;
 
@@ -297,11 +313,7 @@ void dibujar_mapa() {
         mapa[nueva_py / 30][nueva_px / 30] = ' ';
     }
 
-
-
-
 }
-
 
 //Funcion para mostrar la puntuacion en la pantalla
 void mostrar_puntuacion(BITMAP *buffer) {
@@ -335,7 +347,7 @@ void mostrar_puntuacion(BITMAP *buffer) {
 void pantalla()
 {
     blit(buffer, screen, 0,0,0,0,1120,600);
-
+    dibujarfruta(buffer, fruta);
 }
 //funcion para dibujar al pacman, pintar a pacman
 void dibujar_personaje()
@@ -344,8 +356,6 @@ void dibujar_personaje()
     blit(pacbmp,pacman,dir*33,0,0,0,33,33); //lo que hacemos es insertar la posicion la imagen segun la imagen
     //mandamos a dibujar al pacman
     draw_sprite(buffer,pacman,px,py); //debemos poner donde tendremos al personaje
-
-
 }
 
 //funcion gameover para cuando pacman muera
@@ -362,12 +372,15 @@ bool game_over()
             if (mapa[row][col] == 'o' )
                 return true; //si regresa verdad aun hay comida en el mapa
         }
+        if (mapa[row][col] == 'o'|| mapa [row][col]== 'F' )
+            return true; //si regresa verdad aun hay comida en el mapa
     }
     //nos regresa que ya no hay comida
     return false;
 }
 
-//Lo que haremos a continuacion sera crear la clase fantasma
+
+//LO que haremos a continuacion sera crear la clase fantasma
 class fantasma
 {
 
@@ -386,15 +399,14 @@ class fantasma
     BITMAP *fantasmaCeleste;
     //Para el fantasma celeste
     BITMAP *fantasmaRosa;
-
-    //Color del fantasma
-    string color;
-
 //creamos la direccion para los fantasmas
     int fdir ;
+    int temporizadorCambioDir; //temporizador de cambio de direccion
 //coordenada de los fantasmas
     int _x ;
     int _y ;
+//Color del fantasma
+    string color;
 //creamos un construcctor para poder inicializar todas las variables
 public:
     fantasma(int x, int y,string color);
@@ -404,21 +416,25 @@ public:
     void mover_fantasma();
     void choque_pacman();
     void Buscarpacman_fantasma(int x,int y);
-  void set_color(string new_color);
+     void cambiarDireccionAleatoria();
+         void set_color(string new_color);
+
 
 };
 //creamos el constructos para darle los parametros
-fantasma::fantasma(int x, int y,string color)
-{
+fantasma::fantasma(int x, int y,string color){
     _x = x;
     _y = y;
     fdir = rand()%4;
+    temporizadorCambioDir =0; //inicializacion temporizador
+    this->color = color; // Inicializamos el color del fantasma
+
     //implementamos la imagen del fantasma
     //debemos medir la dimension de la imagen que es 30x30
     enemigo = create_bitmap(30,30);
     //creamos la imagen del fantasma
     enemigobmp = load_bitmap("enemigo.bmp",NULL);
-     //Implementamos la imagen que es 30 x 31
+    //Implementamos la imagen que es 30 x 31
     //Imagen para el fantasma rojo
      fantasmaRojo = create_bitmap(30, 31);
     fantasmaRojo = load_bitmap("fantasmarojo.bmp", NULL);
@@ -433,12 +449,16 @@ fantasma::fantasma(int x, int y,string color)
     fantasmaRosa= load_bitmap("fantasmarosa.bmp", NULL);
 
 
+
+}
+//insertar el color del fantasma
+void fantasma::set_color(string new_color) {
+    color = new_color;
 }
 //realizamos las funciones
 //funcion para dibujar al fantasma
 void fantasma::dibujar_fantasma() const
 {
-//imprimir el personaje
     if (color == "rojo")
     blit(fantasmaRojo, enemigo, 0, 0, 0, 0, 30, 30);
     else if (color == "amarillo")
@@ -465,12 +485,14 @@ void fantasma::choque_pacman()
         {
             //hacer esta funcion para que desaparezca el pacman
             clear(pacman);
+
             //limpiamos el buffer
             clear(buffer);
             //mandamos a que se dibuje de nuevo el mapa
             dibujar_mapa();
             //ingresamos la ilustracion de la muerte
             blit(muertebmp,pacman,j*33,0,0,0,33,33);
+
             //insertamos en el buffer mismo de la posicion
             draw_sprite(buffer,pacman,px,py);
             //para que todo esto se vea hay que volver a llamar a la pantalla
@@ -489,7 +511,18 @@ void fantasma::choque_pacman()
 }
 
 //con esta funcion dibujamos al fantasma y hacemos la rutima para mover al fantasma
-
+void fantasma::cambiarDireccionAleatoria()
+{
+    if (temporizadorCambioDir <=0)
+    {
+        fdir = rand() % 4; // Cambiar de dirección aleatoriamente
+        temporizadorCambioDir = 100; // Establecer el temporizador para el próximo cambio de dirección
+    }
+    else
+    {
+        temporizadorCambioDir--;
+    }
+}
 void fantasma::mover_fantasma()
 {
 
@@ -538,6 +571,7 @@ void fantasma::mover_fantasma()
             fdir = rand( )%4 ; //fantasma se movera ya sea arriba, abajo, izquierda o derecha
     }
 
+
     //debemos hacer la rutina para los atajos
     //debemos crear una direcion para cuando tome atajos
     if(_x <= -30)
@@ -549,9 +583,11 @@ void fantasma::mover_fantasma()
 }
 void fantasma::Buscarpacman_fantasma(int x,int y)
 {
+
+
     _x=x;
     _y=y;
-    //mandamos a ilutrar al fantasma
+//mandamos a ilutrar al fantasma
     dibujar_fantasma();
     //implementamos la funcion del choque pacman
     choque_pacman();
@@ -567,7 +603,6 @@ void fantasma::Buscarpacman_fantasma(int x,int y)
 
 
 }
-
 int main ()
 {
     int i=0;
@@ -577,12 +612,12 @@ int main ()
     int FCfinalFX=0;
 
 
-   // Grafo del mapa Pacman
-                 //1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29
-                 //0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28
+    // Grafo del mapa Pacman
+    //1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29
+    //0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28
 
-        vector<vector<int> > grid;
-                 //0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28
+    vector<vector<int> > grid;
+    //0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28
     int row1[] =  {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
     int row2[] =  {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
     int row3[] =  {1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1};
@@ -634,25 +669,30 @@ int main ()
     /*Filas*/int targetY = px/30;
     /*Columnas*/int targetX =py/30 ;
 
-        finalFY=targetY;
-        finalFX=targetX;
+    finalFY=targetY;
+    finalFX=targetX;
 
 
     vector<pair<int, int> > path = astar.findPath(startX, startY, targetX, targetY);
 
 
+    int X=path.size();
     Matriz<int> Camino(1000, 2);
 
     Camino(1, 1);
-    if (!path.empty()) {
-        cout << "Camino encontrado Fantasma A:" << endl;
-        for (size_t i = 0; i < path.size(); ++i) {
+    if (!path.empty())
+    {
+        cout << "Camino encontrado:" << endl;
+        for (size_t i = 0; i < path.size(); ++i)
+        {
             Camino(i, 0)=path[i].first;
             Camino(i, 1)=path[i].second;
             cout << i<<" (" << Camino(i, 1)<< ", " << Camino(i, 0)<< ")" << endl;
         }
 
-    } else {
+    }
+    else
+    {
         cout << "No se encontró un camino." << endl;
     }
 
@@ -662,8 +702,8 @@ int main ()
     /*Filas*/int FCtargetY = px/30;
     /*Columnas*/int FCtargetX =py/30 ;
 
-        FCfinalFY=FCtargetY;
-        FCfinalFX=FCtargetX;
+    FCfinalFY=FCtargetY;
+    FCfinalFX=FCtargetX;
 
 
     vector<pair<int, int> > FCpath = astar.findPath(startX, startY, targetX, targetY);
@@ -671,15 +711,19 @@ int main ()
     Matriz<int> FCCamino(1000, 2);
 
     FCCamino(1, 1);
-    if (!path.empty()) {
-        cout << "Camino encontrado Fantasma C:" << endl;
-        for (size_t i = 0; i < FCpath.size(); ++i) {
+    if (!path.empty())
+    {
+        cout << "Camino encontrado:" << endl;
+        for (size_t i = 0; i < FCpath.size(); ++i)
+        {
             FCCamino(i, 0)=FCpath[i].first;
             FCCamino(i, 1)=FCpath[i].second;
             cout << i<<" (" << FCCamino(i, 1)<< ", " << FCCamino(i, 0)<< ")" << endl;
         }
 
-    } else {
+    }
+    else
+    {
         cout << "No se encontró un camino." << endl;
     }
 
@@ -691,10 +735,15 @@ int main ()
 
     /* ******************************************************************************** */
     //debemos inicializar allegro para tener o usar sonidos
-     if (install_sound(DIGI_AUTODETECT, MIDI_AUTODETECT, NULL) != 0) {
-       allegro_message("Error: inicializando sistema de sonido\n%s\n", allegro_error);
-       return 1;
+    if (install_sound(DIGI_AUTODETECT, MIDI_AUTODETECT, NULL) != 0)
+    {
+        allegro_message("Error: inicializando sistema de sonido\n%s\n", allegro_error);
+        return 1;
     }
+
+    //generar tiempo
+    srand(time(NULL));
+
     //ajustamos ell volumen
     set_volume(70, 70);
 
@@ -702,15 +751,13 @@ int main ()
     bolita = load_wav("pacman_chomp.wav"); //esta musica nos sirve cuando el pacman coma una bolita
     musica1 = load_wav("pacman_beginning.wav"); //Esta musica nos sirve para darle sonido al juego
     muerte = load_wav("pacman_death.wav");//cuando muere pacman
+    fruta = load_bitmap("fruta.bmp", NULL);
     //Creada del buffer parael mapa
     buffer = create_bitmap(1230,600);
     //creada e insertar la imagen del muro
     roca = load_bitmap("roca.bmp", NULL);
     //creamos la ilustracion de la imagen
     pacbmp = load_bitmap("pacman.bmp",NULL);
-
-    solicitar_nombre(buffer); // Llamar a la funciOn para solicitar el nombre antes de comenzar el juego
-
 
     //peque;o buffer
     //debemos medir la dimension de la imagen que es 33x33
@@ -719,6 +766,8 @@ int main ()
 
     //Ingresamos la ilustracion de la muerte de pacman
     muertebmp = load_bitmap("muerte.bmp",NULL);
+    fruta = load_bitmap("fruta.bmp", NULL);
+
       // Cargar imágenes de las vidas del pacman
 
     vida1 = load_bitmap("lifepac.bmp", NULL);
@@ -727,7 +776,11 @@ int main ()
 
     //Cargar mensaje vida
     mensaje=load_bitmap("vidasMensaje.bmp",NULL);
-   //invocamos al constructor fantasma
+
+     solicitar_nombre(buffer); // Llamar a la funci�n para solicitar el nombre antes de comenzar el juego
+
+    //invocamos al constructor fantasma
+
     fantasma A(30*10,30*10,"rojo");
     fantasma B(30*14, 30*8,"amarillo");
     fantasma C (30*18, 30*10,"celeste");
@@ -735,14 +788,17 @@ int main ()
 
     int j=0;
     int k=0;
+    int TargetY=targetY;
+    int TargetX=targetX;
+    int FCTargetY=FCtargetY;
+    int FCTargetX=FCtargetX;
     int TmF1=0;
     int TmF2=0;
     int TmF3=0;
     int TmF4=0;
     int T=0;
-
     //condicion de while que se ejecutara hasta que se presione la tecla de escape
-    while(!key[KEY_ESC] && game_over())
+    while(game_over())
     {
         T++;
 
@@ -794,7 +850,6 @@ int main ()
             else
                 dir =4 ; //pacman no se movera ya que no hay una opcion para que se mueva
         }
-
         //debemos crear una direcion para cuando tome atajos
         if(px <= -30)
             px = 870; //atajo de la izquierda
@@ -807,112 +862,133 @@ int main ()
 
         int casilla_x = px / 30; // Calcular la posición x de la casilla donde se encuentra el pacman
         int casilla_y = py / 30; // Calcular la posición y de la casilla donde se encuentra el pacman
-
-/*        if (come_bolita(casilla_x, casilla_y)) {
-            cout<<"COMIO BOLIA"<<endl;
-        }*/
-
         cout<<"PUNTACION: "<<puntuacion<<endl;
 
         mostrar_puntuacion(buffer); // Llamar a la funcion para mostrar la puntuacion
 
-        if(T==0){
+        if(T==0)
+        {
             TmF1=T;
         }
-        if(TmF1==0){
+        if(TmF1==0)
+        {
 
+            cout << "Tar "<<i<<" (" << targetY << ", " << targetX << ")" << endl;
             cout << "Final "<<i<<" (" << finalFX << ", " << finalFY<< ")" << endl;
             cout << "Camm "<<i<<" (" << Camino(i, 1)<< ", " << Camino(i, 0)<< ")" << endl;
-            if( finalFX==Camino(i, 1) && finalFY==Camino(i, 0)){
+            if( finalFX==Camino(i, 1) && finalFY==Camino(i, 0))
+            {
                 path.clear();
-                 /*Filas*/int startXNew=Camino(i, 0) ;
+                /*Filas*/int startXNew=Camino(i, 0) ;
 
                 /*Columnas*/int startYNew = Camino(i, 1);
                 /*Filas*/  int targetXNew = py/30;
                 /*Columnas*/ int targetYNew= px/30;
 
+                TargetY=targetYNew;
+                TargetX=targetXNew;
 
                 vector<pair<int, int> >Newpath = astar.findPath(startXNew, startYNew, targetXNew, targetYNew);
+                cout << "Camino encontrado:" << endl;
                 cout <<Camino(i, 1)<<","<<Camino(i, 0)<<endl;
+                cout << "Camino encontrado:" << endl;
                 Matriz<int> Camino1(Newpath.size(), 2);
-                if (!Newpath.empty()) {
-                cout << "Camino encontrado Fantasma A:" << endl;
-                for (j = 0; j < Newpath.size(); ++j) {
-                Camino1(j, 0)=Newpath[j].first;
-                Camino1(j, 1)=Newpath[j].second;
-                Camino(j, 1)= Camino1(j, 1);
-                Camino(j, 0)= Camino1(j, 0);
-                cout << j<<" (" <<Camino(j, 1)<< ", " << Camino(j, 0)<< ")" << endl;
+                if (!Newpath.empty())
+                {
+                    cout << "Camino encontrado:" << endl;
+                    for (j = 0; j < Newpath.size(); ++j)
+                    {
+                        Camino1(j, 0)=Newpath[j].first;
+                        Camino1(j, 1)=Newpath[j].second;
+                        Camino(j, 1)= Camino1(j, 1);
+                        Camino(j, 0)= Camino1(j, 0);
+                        cout << j<<" (" <<Camino(j, 1)<< ", " << Camino(j, 0)<< ")" << endl;
+                    }
+                    finalFY=Camino(j-1, 0);
+                    finalFX=Camino(j-1, 1);
+                    ;
                 }
-                finalFY=Camino(j-1, 0);
-                finalFX=Camino(j-1, 1);
-                ;
-               }
-            i=0;
+                i=0;
             }
-            cout << "Fantasma A:"<<i<<" (" << Camino(i, 1)<< ", " << Camino(i, 0)<< ")" << endl;
+            cout << "Fantasma"<<i<<" (" << Camino(i, 1)<< ", " << Camino(i, 0)<< ")" << endl;
             A.Buscarpacman_fantasma(Camino(i, 1)*30,Camino(i, 0)*30);
             i++;
             cout <<px/30<<","<<py/30<< endl;
         }
-        if(T==60){
+        if(T==60)
+        {
             TmF2=T;
         }
-         if(TmF2==60){
+        if(TmF2==60)
+        {
             B.mover_fantasma();
-         }
-        if(T==80){
+        }
+        if(T==80)
+        {
             TmF3=T;
         }
-         if(TmF3==80){
+        if(TmF3==80)
+        {
+
             cout << "Tar "<<k<<" (" << FCtargetY << ", " << FCtargetX << ")" << endl;
             cout << "Final "<<k<<" (" << FCfinalFX << ", " << FCfinalFY<< ")" << endl;
             cout << "Camm "<<k<<" (" << FCCamino(k, 1)<< ", " << FCCamino(k, 0)<< ")" << endl;
-            if( FCfinalFX==FCCamino(k, 1) && FCfinalFY==FCCamino(k, 0)){
+            if( FCfinalFX==FCCamino(k, 1) && FCfinalFY==FCCamino(k, 0))
+            {
                 path.clear();
-                 /*Filas*/int FCstartXNew=FCCamino(k, 0) ;
+                /*Filas*/int FCstartXNew=FCCamino(k, 0) ;
 
                 /*Columnas*/int FCstartYNew = FCCamino(k, 1);
                 /*Filas*/  int FCtargetXNew = py/30;
                 /*Columnas*/ int FCtargetYNew= px/30;
 
-
+                FCTargetY=FCtargetYNew;
+                FCTargetX=FCtargetXNew;
 
                 vector<pair<int, int> >FCNewpath = astar.findPath(FCstartXNew, FCstartYNew, FCtargetXNew, FCtargetYNew);
-
+                cout << "Camino encontrado:" << endl;
                 cout <<FCCamino(k, 1)<<","<<FCCamino(k, 0)<<endl;
-
+                cout << "Camino encontrado:" << endl;
                 Matriz<int> FCCamino1(FCNewpath.size(), 2);
-                if (!FCNewpath.empty()) {
-                cout << "Camino encontrado Fantasma C:" << endl;
-                for (j = 0; j < FCNewpath.size(); ++j) {
-                FCCamino1(j, 0)=FCNewpath[j].first;
-                FCCamino1(j, 1)=FCNewpath[j].second;
-                FCCamino(j, 1)= FCCamino1(j, 1);
-                FCCamino(j, 0)= FCCamino1(j, 0);
-                cout << j<<" (" <<FCCamino(j, 1)<< ", " << FCCamino(j, 0)<< ")" << endl;
+                if (!FCNewpath.empty())
+                {
+                    cout << "Camino encontrado:" << endl;
+                    for (j = 0; j < FCNewpath.size(); ++j)
+                    {
+                        FCCamino1(j, 0)=FCNewpath[j].first;
+                        FCCamino1(j, 1)=FCNewpath[j].second;
+                        FCCamino(j, 1)= FCCamino1(j, 1);
+                        FCCamino(j, 0)= FCCamino1(j, 0);
+                        cout << j<<" (" <<FCCamino(j, 1)<< ", " << FCCamino(j, 0)<< ")" << endl;
+                    }
+                    FCfinalFY=FCCamino(j-1, 0);
+                    FCfinalFX=FCCamino(j-1, 1);
+                    ;
                 }
-                FCfinalFY=FCCamino(j-1, 0);
-                FCfinalFX=FCCamino(j-1, 1);
-                ;
-               }
-            k=0;
+                k=0;
             }
-            cout << "Fantasma C: "<<k<<" (" << FCCamino(i, 1)<< ", " << FCCamino(i, 0)<< ")" << endl;
+            cout << "Fantasma"<<k<<" (" << FCCamino(i, 1)<< ", " << FCCamino(i, 0)<< ")" << endl;
             C.Buscarpacman_fantasma(FCCamino(k, 1)*30,FCCamino(k, 0)*30);
             k++;
             cout <<px/30<<","<<py/30<< endl;
-         }
+        }
 
-        if(T==100){
+        if(T==100)
+        {
             TmF4=T;
         }
-         if(TmF4==100){
+        if(TmF4==100)
+        {
             D.mover_fantasma();
-         }
-
+        }
+        dibujarfruta(buffer, fruta);
+        if (fruta_comida)
+        {
+            fruta_comida = false;
+        }
         dibujar_mensaje();
         dibujar_vidas();
+
 
         pantalla();
         //darle un tiempo al programa para poder ver el tiempo de pacman
@@ -927,13 +1003,14 @@ int main ()
         //volvemos a darle un tiempo para el personaje
         rest(100);
 
-
     }
+
 
 
     return 0;
 }
 END_OF_MAIN ()
+
 
 
 
