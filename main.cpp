@@ -275,6 +275,28 @@ void dibujar_mapa() {
         }
     }
 
+    // Detectar si el pacman come una bolita despu�s de moverse
+    int nueva_px = px;
+    int nueva_py = py;
+
+    if (dir == 0 && mapa[py / 30][(px - 30) / 30] == 'o') {
+        nueva_px = px - 30;
+    } else if (dir == 1 && mapa[py / 30][(px + 30) / 30] == 'o') {
+        nueva_px = px + 30;
+    } else if (dir == 2 && mapa[(py - 30) / 30][px / 30] == 'o') {
+        nueva_py = py - 30;
+    } else if (dir == 3 && mapa[(py + 30) / 30][px / 30] == 'o') {
+        nueva_py = py + 30;
+    }
+
+    if (mapa[nueva_py / 30][nueva_px / 30] == 'o') {
+        // Incrementar la puntuaci�n
+        actualizar_puntuacion(10); // Por ejemplo, aumentamos en 10 puntos por cada bolita comida
+
+        // Cambiar la posici�n de la bolita en el mapa a un espacio en blanco
+        mapa[nueva_py / 30][nueva_px / 30] = ' ';
+    }
+
 
 
 
@@ -345,7 +367,7 @@ bool game_over()
     return false;
 }
 
-//LO que haremos a continuacion sera crear la clase fantasma
+//Lo que haremos a continuacion sera crear la clase fantasma
 class fantasma
 {
 
@@ -783,22 +805,12 @@ int main ()
         dibujar_mapa();
         dibujar_personaje();
 
-        // Detectar si el pacman come una bolita después de moverse
-        int nueva_px = px;
-        int nueva_py = py;
+        int casilla_x = px / 30; // Calcular la posición x de la casilla donde se encuentra el pacman
+        int casilla_y = py / 30; // Calcular la posición y de la casilla donde se encuentra el pacman
 
-        // Calcular las coordenadas de la casilla actual del pacman en el mapa
-        int casilla_x = nueva_px / 30;
-        int casilla_y = nueva_py / 30;
-
-        // Verificar si la casilla actual del pacman contiene una bolita ('o')
-        if (mapa[casilla_y][casilla_x] == 'o') {
-            // Incrementar la puntuación
-            actualizar_puntuacion(10); // Aumentamos en 10 puntos por cada bolita comida
-
-            // Cambiar la posición de la bolita en el mapa a un espacio en blanco
-            mapa[casilla_y][casilla_x] = ' ';
-        }
+/*        if (come_bolita(casilla_x, casilla_y)) {
+            cout<<"COMIO BOLIA"<<endl;
+        }*/
 
         cout<<"PUNTACION: "<<puntuacion<<endl;
 
@@ -901,12 +913,6 @@ int main ()
 
         dibujar_mensaje();
         dibujar_vidas();
-
-        /*if (game_over()) {
-            perder_vida(); // Llamar a la función para reducir el contador de vidas
-            rest(5000); // Esperar 5 segundos antes de salir del juego
-            break;
-        }*/
 
         pantalla();
         //darle un tiempo al programa para poder ver el tiempo de pacman
