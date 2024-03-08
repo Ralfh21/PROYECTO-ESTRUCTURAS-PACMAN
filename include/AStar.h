@@ -52,7 +52,7 @@ public:
         vector<vector<pair<int, int> > > parent(numRows, vector<pair<int, int> >(numCols, make_pair(-1, -1)));
 
         //Cada celda de esta matriz bidimencional almacenará el costo acumulado para llegar a ese nodo desde el nodo inicial
-
+        //inicializando la matriz cost con un tamaño de numRows filas y numCols columnas. Cada celda de la matriz se inicializa con el valor de INFINITY.
         vector<vector<double> > cost(numRows, vector<double>(numCols, INFINITY));
         cost[startX][startY] = 0.0;
 
@@ -71,7 +71,7 @@ public:
 
                 // Verificar si el nuevo nodo está dentro de los límites del grid y es transitable
                 if (newX >= 0 && newX < numRows && newY >= 0 && newY < numCols && grid[newX][newY] == 0) {
-                    //es el nuevo costo acumulado para llegar al nodo adyacente adseible desde el nodo actual
+                    //es el nuevo costo acumulado para llegar al nodo adyacente asseible desde el nodo actual
                     double newCost = cost[x][y] + 1.0; // nuevo costo acumulado para llegar al nodo adyacente desde el nodo actual.
                     //verifica si el nuevo costo calculado para llegar al nodo adyacente
                     //es menor que el costo actual almacenado para ese nodo
