@@ -224,6 +224,10 @@ void dibujar_mapa()
         }
     }
 
+     // Detectar si el pacman come una bolita despu�s de moverse
+    int nueva_px = px;
+    int nueva_py = py;
+
     if (mapa[nueva_py / 30][nueva_px / 30] == 'o') {
         // Incrementar la puntuaci�n
         actualizar_puntuacion(10); // Por ejemplo, aumentamos en 10 puntos por cada bolita comida
@@ -233,6 +237,32 @@ void dibujar_mapa()
     }
 }
 
+/// Funcion para mostrar la puntuacion en la pantalla
+void mostrar_puntuacion(BITMAP *buffer) {
+    // Encontrar la posicion del ultimo muro en el mapa
+    int ultima_columna_muro = 0;
+    for (int fila = 0; fila < MAXFILAS; fila++) {
+        for (int columna = 0; columna < MAXCOL; columna++) {
+            if (mapa[fila][columna] == 'X') {
+                if (columna > ultima_columna_muro) {
+                    ultima_columna_muro = columna;
+                }
+            }
+        }
+    }
+
+    // Calcular el ancho de la parte derecha de la pantalla
+    int ancho_parte_derecha = SCREEN_W - (ultima_columna_muro + 1) * 30;
+
+    // Llenar el �rea derecha de la pantalla con un rect�ngulo negro
+    rectfill(buffer, (ultima_columna_muro + 1) * 30, 0, SCREEN_W, SCREEN_H, makecol(0, 0, 0));
+
+    // Mostrar la puntuaci�n y el nombre del jugador en blanco sobre el fondo negro
+    textprintf_right_ex(buffer, font, SCREEN_W - 20, 40, makecol(255, 255, 255), -1, "JUGADOR: %s", nombre_jugador);
+    textprintf_right_ex(buffer, font, SCREEN_W - 20, 20, makecol(255, 255, 255), -1, "PUNTUACION: %d", puntuacion);
+    // Actualizar el buffer en la pantalla
+    blit(buffer, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
+}
 
 //Funcion para inicializar la pantalla
 void pantalla()
@@ -815,9 +845,9 @@ int main ()
             D.mover_fantasma();
          }
 
-         dibujar_mensaje();
+        dibujar_mensaje();
         dibujar_vidas();
-
+        mostrar_puntuacion(buffer); // Llamar a la funcion para mostrar la puntuacion
 
 
         pantalla();
