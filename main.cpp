@@ -9,7 +9,7 @@
 
 using namespace std;
 
-FONT *mi_fuente; // Declaraci�n global
+FONT *mi_fuente; // Declaracion global
 
 char nombre_jugador[50];
 
@@ -57,14 +57,46 @@ int anterior_py;
 int vidas = 3;
 
 
+void mostrar_cargando(BITMAP *buffer, int segundos) {
+    int contador = 0;
+    int progreso = 0;
+    int paso = 1000; // Paso de actualización en milisegundos
+
+    while (contador <=segundos * 1000) {
+        clear(buffer);
+        textprintf_centre_ex(buffer, font, SCREEN_W / 2, SCREEN_H / 2 - text_height(font) / 2,
+                             makecol(255, 255, 255), -1, "Cargando... %d%%", progreso);
+        blit(buffer, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
+        rest(paso);
+        contador += paso;
+        progreso = (contador * 100) / (segundos * 1000);
+    }
+}
+
 //Funcion para ingresar el nombre
 void solicitar_nombre(BITMAP *buffer) {
 
     // Dibujar el resto de la pantalla
-    rectfill(buffer, 100, 200, 780, 400, makecol(0, 0, 0)); // Rect�ngulo de fondo
-    textout_centre_ex(buffer, font, "Bienvenido a Pacman!", SCREEN_W / 2, 220, makecol(255, 255, 255), -1); // Mensaje de bienvenida
-    textout_centre_ex(buffer, font, "Por favor, ingresa tu nombre:", SCREEN_W / 2, 270, makecol(255, 255, 255), -1); // Mensaje de solicitud de nombre
-    hline(buffer, 200, 310, 680, makecol(255, 255, 255)); // Linea de separacion
+
+    // Calcular la longitud del texto "Por favor, ingresa tu nombre:"
+        int texto_longitud = text_length(font, "Por favor, ingresa tu nombre:");
+
+        // Definir el factor de escala para la línea
+        float escala_linea = 0.8; // Ajusta este valor según sea necesario
+
+        // Calcular la longitud de la línea relativa al texto
+        int linea_longitud = static_cast<int>(texto_longitud * escala_linea);
+
+        // Calcular las coordenadas de inicio y fin de la línea horizontal
+        int linea_inicio = (1230 / 2) - (linea_longitud / 2);
+        int linea_fin = (1230 / 2) + (linea_longitud / 2);
+
+        // Actualizar el buffer con el nombre temporal
+        clear(buffer);
+        rectfill(buffer, 100, 200, 1130, 400, makecol(0, 0, 0)); // Rectángulo de fondo
+        textout_centre_ex(buffer, font, "Bienvenido a Pacman!", 1230 / 2, 220, makecol(255, 255, 255), -1); // Mensaje de bienvenida
+        textout_centre_ex(buffer, font, "Por favor, ingresa tu nombre:", 1230 / 2, 270, makecol(255, 255, 255), -1); // Mensaje de solicitud de nombre
+        hline(buffer, linea_inicio, 310, linea_fin, makecol(255, 255, 255)); // Línea de separación centrada
 
     // Actualizar el buffer
     blit(buffer, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
@@ -72,11 +104,11 @@ void solicitar_nombre(BITMAP *buffer) {
     char nombre_temporal[50] = {0};
     int indice = 0;
 
-    while (true) {
+    while(true){
         // Esperar a que el usuario presione una tecla
         int key = readkey();
 
-        // Extraer el c�digo ASCII y el scan code de la tecla presionada
+        // Extraer el código ASCII y el scan code de la tecla presionada
         int ascii_code = key & 0xff;
         int scan_code = (key >> 8) & 0xff;
 
@@ -85,33 +117,31 @@ void solicitar_nombre(BITMAP *buffer) {
             break;
         }
 
-        // Si se presiona una tecla alfab�tica o un espacio y a�n no hemos alcanzado el l�mite de caracteres, agregamos la tecla al nombre temporal
+        // Si se presiona una tecla alfabética o un espacio y aún no hemos alcanzado el límite de caracteres, agregamos la tecla al nombre temporal
         if (((ascii_code >= 'A' && ascii_code <= 'Z') || (ascii_code >= 'a' && ascii_code <= 'z') || ascii_code == ' ') && indice < 49) {
             nombre_temporal[indice++] = ascii_code;
-            nombre_temporal[indice] = '\0'; // A�adir terminador nulo al final de la cadena
+            nombre_temporal[indice] = '\0'; // Añadir terminador nulo al final de la cadena
         }
 
         // Actualizar el buffer con el nombre temporal
         clear(buffer);
-        rectfill(buffer, 100, 200, 780, 400, makecol(0, 0, 0)); // Rect�ngulo de fondo
-        textout_centre_ex(buffer, font, "�Bienvenido a Pacman!", SCREEN_W / 2, 220, makecol(255, 255, 255), -1); // Mensaje de bienvenida
-        textout_centre_ex(buffer, font, "Por favor, ingresa tu nombre:", SCREEN_W / 2, 270, makecol(255, 255, 255), -1); // Mensaje de solicitud de nombre
-        hline(buffer, 200, 310, 680, makecol(255, 255, 255)); // L�nea de separaci�n
-        textout_centre_ex(buffer, font, nombre_temporal, SCREEN_W / 2, 340, makecol(255, 255, 255), -1); // Nombre temporal
-        blit(buffer, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
+        rectfill(buffer, 100, 200, 1130, 400, makecol(0, 0, 0)); // Rectángulo de fondo
+        textout_centre_ex(buffer, font, "Bienvenido a Pacman!", 1230 / 2, 220, makecol(255, 255, 255), -1); // Mensaje de bienvenida
+        textout_centre_ex(buffer, font, "Por favor, ingresa tu nombre:", 1230 / 2, 270, makecol(255, 255, 255), -1); // Mensaje de solicitud de nombre
+        hline(buffer, linea_inicio, 310, linea_fin, makecol(255, 255, 255)); // Línea de separación centrada
+        textout_centre_ex(buffer, font, nombre_temporal, 1230 / 2, 340, makecol(255, 255, 255), -1); // Nombre temporal
+        blit(buffer, screen, 0, 0, 0, 0, 1230, 600);
     }
 
     // Copiar el nombre temporal en la variable nombre_jugador
     strcpy(nombre_jugador, nombre_temporal);
+
+     // Llamamos a la función para mostrar el mensaje de carga durante 10 segundos
+    mostrar_cargando(buffer, 10);
 }
 
 
-int puntuacion = 0; // Variable para almacenar la puntuacion
 
-// Funcion para actualizar la puntuacion
-void actualizar_puntuacion(int puntos) {
-    puntuacion += puntos;
-}
 
 //mapa del nivel donde estara los muros
 //en el mapa consideraremos a las X como el muro y las o como la comida del pacman
@@ -126,13 +156,14 @@ struct Coordenadas {
 
     Coordenadas(int _x, int _y) : x(_x), y(_y) {}
 };
+
 char mapa[MAXFILAS][MAXCOL]=
 {
     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX        ",
-    "XoooooooooooooooooooooooooooX       ",
+    "XoooooooooooooXoooooooooooooX       ",
     "XoXXXoXXXXXoXXXXXoXXXXXoXXXoX        ",
     "XoXXXoXXXXXoXXXXXoXXXXXoXXXoX       ",
-    "XooFoooooooooooooooooooFooooX          ",
+    "XooFooooooooooXooooooooFooooX          ",
     "XoXXXoXXoXXXXXXXXXXXoXXoXXXoX     ",
     "XoooooXXoooooXXXoooooXXoooooX",
     "XoXXXoXXXXXX XXX XXXXXXoXXXoX      ",
@@ -150,6 +181,7 @@ char mapa[MAXFILAS][MAXCOL]=
     "XooooooooooXXXXXXXXoooooooooX      ",
     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX      ",
 };
+
 void dibujar_mensaje(){
     draw_sprite(buffer,mensaje,900,475);//dibujamos el mensaje
 
@@ -174,6 +206,7 @@ bool verificar_fin_de_juego() {
 void mostrar_mensaje_de_fin_de_juego() {
     cout << "¡Fin del juego! Te has quedado sin vidas.\n";
 }
+
 // Función para eliminar una vida del pacman y verificar el fin del juego
 void perder_vida() {
     if (vidas > 0) {
@@ -189,53 +222,35 @@ void perder_vida() {
     }
 }
 
-//funcion para dibujar el mapa
-void dibujar_mapa()
-{
-    //necesitamos columnas y filas definirkas
+int puntuacion = 0; // Variable para almacenar la puntuacion
+
+// Funcion para actualizar la puntuacion
+void actualizar_puntuacion(int puntos) {
+    puntuacion += puntos;
+}
+
+//Funcion para dibujar el mapa
+void dibujar_mapa() {
     int row, col;
-    //creamos bucles para que recorra todo nuestro mapa
-    for(row=0; row<MAXFILAS; row++)
-    {
 
-        for (col  = 0 ; col < MAXCOL ; col++)
-        {
-            //aplicamos la condicion en donde alla una X ponda la imagen del muro
-            if (mapa[row][col] == 'X' )
-            {
-                //funcion para que se proyecte el muro en cada lugar donde este una X
-                draw_sprite(buffer, roca, col*30, row*30);
-            }
-            else if(mapa[row][col] == 'o' )
-            {
-                //funcion para que se proyecte la comida en cada lugar donde este una X
-                draw_sprite(buffer, comida, col*30, row*30);
-                //necesitamos elimiar la comida cuando pase el pacman
-                if (py/30 ==row && px/30 == col )
-                {
-
-                    //verificamos si pacman esta en esa posicion
-                    mapa[row][col] = ' '; //no habra nada osea se borra
-
+    for(row = 0; row < MAXFILAS; row++) {
+        for (col = 0; col < MAXCOL; col++) {
+            if (mapa[row][col] == 'X') {
+                draw_sprite(buffer, roca, col * 30, row * 30);
+            } else if (mapa[row][col] == 'o') {
+                draw_sprite(buffer, comida, col * 30, row * 30);
+                if (py / 30 == row && px / 30 == col) {
+                    mapa[row][col] = ' ';
                 }
-
-
             }
         }
     }
 
-     // Detectar si el pacman come una bolita despu�s de moverse
-    int nueva_px = px;
-    int nueva_py = py;
 
-    if (mapa[nueva_py / 30][nueva_px / 30] == 'o') {
-        // Incrementar la puntuacion
-        actualizar_puntuacion(10); // Aumentamos en 10 puntos por cada bolita comida
 
-        // Cambiar la posicion de la bolita en el mapa a un espacio en blanco
-        mapa[nueva_py / 30][nueva_px / 30] = ' ';
-    }
+
 }
+
 
 //Funcion para mostrar la puntuacion en la pantalla
 void mostrar_puntuacion(BITMAP *buffer) {
@@ -258,7 +273,7 @@ void mostrar_puntuacion(BITMAP *buffer) {
     // Llenar el area derecha de la pantalla con un rectangulo negro
     rectfill(buffer, (ultima_columna_muro + 1) * 30 + ancho_parte_derecha, 0, SCREEN_W, SCREEN_H, makecol(0, 0, 0));
 
-    // Mostrar la puntuaci�n y el nombre del jugador en blanco sobre el fondo negro
+    // Mostrar la puntuacion y el nombre del jugador en blanco sobre el fondo negro
     textprintf_right_ex(buffer, font, SCREEN_W - 20, 40, makecol(255, 255, 255), -1, "JUGADOR: %s", nombre_jugador);
     textprintf_right_ex(buffer, font, SCREEN_W - 20, 20, makecol(255, 255, 255), -1, "PUNTUACION: %d", puntuacion);
     // Actualizar el buffer en la pantalla
@@ -483,8 +498,6 @@ void fantasma::mover_fantasma()
 }
 void fantasma::Buscarpacman_fantasma(int x,int y)
 {
-
-
     _x=x;
     _y=y;
     //mandamos a ilutrar al fantasma
@@ -646,7 +659,7 @@ int main ()
     //creamos la ilustracion de la imagen
     pacbmp = load_bitmap("pacman.bmp",NULL);
 
-       solicitar_nombre(buffer); // Llamar a la funci�n para solicitar el nombre antes de comenzar el juego
+    solicitar_nombre(buffer); // Llamar a la funciOn para solicitar el nombre antes de comenzar el juego
 
 
     //peque;o buffer
@@ -681,6 +694,7 @@ int main ()
     int TmF3=0;
     int TmF4=0;
     int T=0;
+
     //condicion de while que se ejecutara hasta que se presione la tecla de escape
     while(!key[KEY_ESC] && game_over())
     {
@@ -744,6 +758,28 @@ int main ()
 
         dibujar_mapa();
         dibujar_personaje();
+
+        // Detectar si el pacman come una bolita después de moverse
+        int nueva_px = px;
+        int nueva_py = py;
+
+        // Calcular las coordenadas de la casilla actual del pacman en el mapa
+        int casilla_x = nueva_px / 30;
+        int casilla_y = nueva_py / 30;
+
+        // Verificar si la casilla actual del pacman contiene una bolita ('o')
+        if (mapa[casilla_y][casilla_x] == 'o') {
+            // Incrementar la puntuación
+            actualizar_puntuacion(10); // Aumentamos en 10 puntos por cada bolita comida
+
+            // Cambiar la posición de la bolita en el mapa a un espacio en blanco
+            mapa[casilla_y][casilla_x] = ' ';
+        }
+
+        cout<<"PUNTACION: "<<puntuacion<<endl;
+
+        mostrar_puntuacion(buffer); // Llamar a la funcion para mostrar la puntuacion
+
         if(T==0){
             TmF1=T;
         }
@@ -799,7 +835,7 @@ int main ()
         }
          if(TmF3==80){
 
-             cout << "Tar "<<k<<" (" << FCtargetY << ", " << FCtargetX << ")" << endl;
+            cout << "Tar "<<k<<" (" << FCtargetY << ", " << FCtargetX << ")" << endl;
             cout << "Final "<<k<<" (" << FCfinalFX << ", " << FCfinalFY<< ")" << endl;
             cout << "Camm "<<k<<" (" << FCCamino(k, 1)<< ", " << FCCamino(k, 0)<< ")" << endl;
             if( FCfinalFX==FCCamino(k, 1) && FCfinalFY==FCCamino(k, 0)){
@@ -848,7 +884,7 @@ int main ()
 
         dibujar_mensaje();
         dibujar_vidas();
-        mostrar_puntuacion(buffer); // Llamar a la funcion para mostrar la puntuacion
+
 
 
         pantalla();
