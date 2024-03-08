@@ -133,18 +133,14 @@ int anterior_py;
 // Variable para llevar la cuenta de las vidas
 int vidas = 3;
 //en el mapa consideraremos a las X como el muro y las o como la comida del pacman
-//crear la posicion de la fruta 
+//crear la posicion de la fruta
 int fruta_x, fruta_y;
 bool fruta_visible= false;
 bool fruta_comida =false;
 //mapa del nivel donde estara los muros
 //en el mapa consideraremos a las X como el muro y las o como la comida del pacman
 
-struct Coordenadas{
-    int x;
-    int y;
-    Coordenadas(int _x, int _y) : x(_x), y(_y) {}
-};
+
 char mapa[MAXFILAS][MAXCOL]={
      "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX        ",
     "XFooooooooooooooooooooooooooX       ",
@@ -168,7 +164,7 @@ char mapa[MAXFILAS][MAXCOL]={
     "XooooooooooXXXXXXXXoooooooooX      ",
     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX      ",
 };
-//sirve para generar una posicion especfica en el mapa 
+//sirve para generar una posicion especfica en el mapa
 void generar_pfruta(int x, int y)
 {
     fruta_comida =false;
@@ -578,10 +574,9 @@ void fantasma::mover_fantasma()
 
 
 }
+//Funcion que resive las cordenadas asia donde se a mover el fantasma
 void fantasma::Buscarpacman_fantasma(int x,int y)
 {
-
-
     _x=x;
     _y=y;
 //mandamos a ilutrar al fantasma
@@ -676,7 +671,7 @@ int main ()
     int X=path.size();
     Matriz<int> Camino(1000, 2);
 
-    Camino(1, 1);
+
     if (!path.empty())
     {
         cout << "Camino encontrado:" << endl;
@@ -785,8 +780,7 @@ int main ()
 
     int j=0;
     int k=0;
-    int TargetY=targetY;
-    int TargetX=targetX;
+
     int FCTargetY=FCtargetY;
     int FCTargetX=FCtargetX;
     int TmF1=0;
@@ -871,7 +865,7 @@ int main ()
         if(TmF1==0)
         {
 
-            cout << "Tar "<<i<<" (" << targetY << ", " << targetX << ")" << endl;
+
             cout << "Final "<<i<<" (" << finalFX << ", " << finalFY<< ")" << endl;
             cout << "Camm "<<i<<" (" << Camino(i, 1)<< ", " << Camino(i, 0)<< ")" << endl;
             if( finalFX==Camino(i, 1) && finalFY==Camino(i, 0))
@@ -883,13 +877,11 @@ int main ()
                 /*Filas*/  int targetXNew = py/30;
                 /*Columnas*/ int targetYNew= px/30;
 
-                TargetY=targetYNew;
-                TargetX=targetXNew;
+
 
                 vector<pair<int, int> >Newpath = astar.findPath(startXNew, startYNew, targetXNew, targetYNew);
-                cout << "Camino encontrado:" << endl;
-                cout <<Camino(i, 1)<<","<<Camino(i, 0)<<endl;
-                cout << "Camino encontrado:" << endl;
+
+                cout << "Camino encontrado FantasmaA:" << endl;
                 Matriz<int> Camino1(Newpath.size(), 2);
                 if (!Newpath.empty())
                 {
@@ -908,7 +900,7 @@ int main ()
                 }
                 i=0;
             }
-            cout << "Fantasma"<<i<<" (" << Camino(i, 1)<< ", " << Camino(i, 0)<< ")" << endl;
+            cout << "Fantasma A"<<i<<" (" << Camino(i, 1)<< ", " << Camino(i, 0)<< ")" << endl;
             A.Buscarpacman_fantasma(Camino(i, 1)*30,Camino(i, 0)*30);
             i++;
             cout <<px/30<<","<<py/30<< endl;
@@ -928,7 +920,7 @@ int main ()
         if(TmF3==80)
         {
 
-            cout << "Tar "<<k<<" (" << FCtargetY << ", " << FCtargetX << ")" << endl;
+
             cout << "Final "<<k<<" (" << FCfinalFX << ", " << FCfinalFY<< ")" << endl;
             cout << "Camm "<<k<<" (" << FCCamino(k, 1)<< ", " << FCCamino(k, 0)<< ")" << endl;
             if( FCfinalFX==FCCamino(k, 1) && FCfinalFY==FCCamino(k, 0))
@@ -940,17 +932,16 @@ int main ()
                 /*Filas*/  int FCtargetXNew = py/30;
                 /*Columnas*/ int FCtargetYNew= px/30;
 
-                FCTargetY=FCtargetYNew;
-                FCTargetX=FCtargetXNew;
+
 
                 vector<pair<int, int> >FCNewpath = astar.findPath(FCstartXNew, FCstartYNew, FCtargetXNew, FCtargetYNew);
                 cout << "Camino encontrado:" << endl;
                 cout <<FCCamino(k, 1)<<","<<FCCamino(k, 0)<<endl;
-                cout << "Camino encontrado:" << endl;
+
                 Matriz<int> FCCamino1(FCNewpath.size(), 2);
                 if (!FCNewpath.empty())
                 {
-                    cout << "Camino encontrado:" << endl;
+                    cout << "Camino encontrado FC:" << endl;
                     for (j = 0; j < FCNewpath.size(); ++j)
                     {
                         FCCamino1(j, 0)=FCNewpath[j].first;
@@ -965,7 +956,7 @@ int main ()
                 }
                 k=0;
             }
-            cout << "Fantasma"<<k<<" (" << FCCamino(i, 1)<< ", " << FCCamino(i, 0)<< ")" << endl;
+            cout << "Fantasma C"<<k<<" (" << FCCamino(i, 1)<< ", " << FCCamino(i, 0)<< ")" << endl;
             C.Buscarpacman_fantasma(FCCamino(k, 1)*30,FCCamino(k, 0)*30);
             k++;
             cout <<px/30<<","<<py/30<< endl;
