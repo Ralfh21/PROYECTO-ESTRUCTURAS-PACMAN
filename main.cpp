@@ -201,7 +201,8 @@ void dibujar_vidas() {
 bool verificar_fin_de_juego() {
     return vidas <= 0; // Devuelve verdadero si el contador de vidas es igual o menor que cero
 }
-// Función para mostrar el mensaje de fin de juego
+
+// Función para mostrar el mensaje de fin de juego por consola
 void mostrar_mensaje_de_fin_de_juego() {
     cout << "¡Fin del juego! Te has quedado sin vidas.\n";
 }
