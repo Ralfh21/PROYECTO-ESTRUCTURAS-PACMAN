@@ -276,6 +276,7 @@ void dibujar_mapa(){
                 if (py/30 ==row && px/30 == col ){
             //verificamos si pacman esta en esa posicion
                     mapa[row][col] = ' '; //no habra nada osea se borra
+                    play_sample(bolita,100,150,1000,0);
                 }
             }
             else if(mapa[row][col] == 'F')
@@ -480,6 +481,7 @@ void fantasma::choque_pacman()
     //revisamos si existe la misma posicion del fantasma con el pacman
     if (py == _y  && px == _x || _y == anterior_py && _x == anterior_px)
     {
+                play_sample(muerte,100,150,1000,0);
         //creamos un bucle for para que se vea el proceso de eliminar el pacman
         for (int j = 0; j<= 5; j++)
         {
@@ -797,7 +799,8 @@ int main ()
     int TmF3=0;
     int TmF4=0;
     int T=0;
-    //condicion de while que se ejecutara hasta que se presione la tecla de escape
+    //condicion de while que se ejecutara hasta que se complete el juego y se llame el gameover
+       play_sample(musica1,100,150,1000,1);
     while(game_over())
     {
         T++;
