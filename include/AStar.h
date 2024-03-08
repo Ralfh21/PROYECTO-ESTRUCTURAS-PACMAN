@@ -71,27 +71,38 @@ public:
 
                 // Verificar si el nuevo nodo está dentro de los límites del grid y es transitable
                 if (newX >= 0 && newX < numRows && newY >= 0 && newY < numCols && grid[newX][newY] == 0) {
-                    double newCost = cost[x][y] + 1.0; // Costo uniforme (1 por movimiento)
+                    //es el nuevo costo acumulado para llegar al nodo adyacente adseible desde el nodo actual
+                    double newCost = cost[x][y] + 1.0; // nuevo costo acumulado para llegar al nodo adyacente desde el nodo actual.
+                    //verifica si el nuevo costo calculado para llegar al nodo adyacente
+                    //es menor que el costo actual almacenado para ese nodo
+                    //cost[newX][newY] costo actual acumulado para llegar al nodo adyacente desde el nodo inicial
                     if (newCost < cost[newX][newY]) {
-                        cost[newX][newY] = newCost;
-                        parent[newX][newY] = make_pair(x, y);
+                        cost[newX][newY] = newCost;//Actualizamos el coste acumulado
+                        parent[newX][newY] = make_pair(x, y);//Agregamos la nueva cordena a la lista del camino
+
                         pq.push(Node(newX, newY, newCost, euclideanDistance(newX, newY, targetX, targetY)));
+                        //Agregamos a la cola el nodo y la distancia entre el nodo agregado y el
+                        //nodo destino
                     }
                 }
             }
 
             // Si llegamos al nodo objetivo, construimos el camino de regreso
             if (x == targetX && y == targetY) {
-                vector<pair<int, int> > path;
+                vector<pair<int, int> > path;//iniciaizamos la matriz para guardar el camino encontrado
                 while (x != startX || y != startY) {
+                    //agregamos las cordenadas a la matriz
                     path.push_back(make_pair(x, y));
+                    //Asignamos las coredenadas X y Y estraidas de la matriz padre a las variable preX y preY
                     int prevX = parent[x][y].first;
                     int prevY = parent[x][y].second;
+                    //Asignamos las coredenadas estraidas a x y y
                     x = prevX;
                     y = prevY;
                 }
+                //agregamos las cordenadas inicailes a la matriz
                 path.push_back(make_pair(startX, startY));
-                reverse(path.begin(), path.end());
+                reverse(path.begin(), path.end());//invierte el orden de los elementos
                 return path;
             }
 

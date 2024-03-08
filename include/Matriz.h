@@ -26,14 +26,7 @@ public:
         }
     }
 
-    ~Matriz() {
-        for (int i = 0; i < tamanio_fila; ++i) {
-            delete[] elementos[i];
-        }
-        delete[] elementos;
-    }
-
-    // Función para acceder y asignar valores a los elementos de la matriz
+    // Función asignar valores a los elementos de la matriz
     void entregarElemento(int fila, int columna, T elemento) {
         if (fila >= 0 && fila < tamanio_fila && columna >= 0 && columna < tamanio_columna) {
             elementos[fila][columna] = elemento;
@@ -42,18 +35,9 @@ public:
         }
     }
 
-    // Sobrecarga del operador de llamada a la función ()
+    //   permite acceder los elementos de la matriz
     T& operator()(int fila, int columna) {
         return elementos[fila][columna];
     }
 
-    // Función para imprimir la matriz
-    void imprimir() {
-        for (int i = 0; i < tamanio_fila; ++i) {
-            for (int j = 0; j < tamanio_columna; ++j) {
-                cout << elementos[i][j] << " ";
-            }
-            cout << endl;
-        }
-    }
 };

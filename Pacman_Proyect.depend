@@ -10,20 +10,24 @@
 	<cstdlib>
 	<ctime>
 
+<<<<<<< HEAD
 1709861234 source:c:\users\user\documents\github\proyecto-estructuras-pacman\main.cpp
+=======
+1709859519 source:c:\users\user\documents\github\proyecto-estructuras-pacman\main.cpp
+>>>>>>> 8f18d426910acf7388c331329cc27e37f667e465
 	<allegro.h>
 	<stdio.h>
 	<AStar.h>
 	<Matriz.h>
 	<cstdlib>
 
-1709855587 c:\users\user\documents\github\proyecto-estructuras-pacman\include\astar.h
+1709858774 c:\users\user\documents\github\proyecto-estructuras-pacman\include\astar.h
 	<iostream>
 	<vector>
 	<queue>
 	<cmath>
 	<algorithm>
 
-1709825942 c:\users\user\documents\github\proyecto-estructuras-pacman\include\matriz.h
+1709859775 c:\users\user\documents\github\proyecto-estructuras-pacman\include\matriz.h
 	<iostream>
 
