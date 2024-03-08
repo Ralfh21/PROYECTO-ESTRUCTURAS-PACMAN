@@ -144,7 +144,6 @@ void solicitar_nombre(BITMAP *buffer) {
 
 
 
-
 //mapa del nivel donde estara los muros
 //en el mapa consideraremos a las X como el muro y las o como la comida del pacman
 
@@ -207,6 +206,38 @@ void mostrar_mensaje_de_fin_de_juego() {
     cout << "¡Fin del juego! Te has quedado sin vidas.\n";
 }
 
+
+
+int puntuacion = 0; // Variable para almacenar la puntuacion
+
+// Funcion para actualizar la puntuacion
+void actualizar_puntuacion(int puntos) {
+    puntuacion += puntos;
+}
+
+void mostrar_game_over() {
+    // Crear un buffer para dibujar
+    BITMAP *buffer = create_bitmap(SCREEN_W, SCREEN_H);
+
+    // Dibujar el fondo de Game Over
+    rectfill(buffer, 0, 0, SCREEN_W, SCREEN_H, makecol(0, 0, 0));
+    textout_centre_ex(buffer, font, "Game Over", SCREEN_W / 2, SCREEN_H / 2 - 40, makecol(255, 255, 255), -1);
+    textout_centre_ex(buffer, font, "Puntuacion:", SCREEN_W / 2, SCREEN_H / 2, makecol(255, 255, 255), -1);
+    textprintf_centre_ex(buffer, font, SCREEN_W / 2, SCREEN_H / 2 + 20, makecol(255, 255, 255), -1, "%d", puntuacion);
+    textout_centre_ex(buffer, font, "Jugador:", SCREEN_W / 2, SCREEN_H / 2 + 40, makecol(255, 255, 255), -1);
+    textout_centre_ex(buffer, font, nombre_jugador, SCREEN_W / 2, SCREEN_H / 2 + 60, makecol(255, 255, 255), -1);
+
+    // Mostrar el buffer en la pantalla
+    blit(buffer, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
+
+    // Esperar un poco antes de cerrar
+    rest(5000); // 5000 milisegundos (5 segundos)
+
+    // Liberar recursos
+    destroy_bitmap(buffer);
+}
+
+
 // Función para eliminar una vida del pacman y verificar el fin del juego
 void perder_vida() {
     if (vidas > 0) {
@@ -216,18 +247,15 @@ void perder_vida() {
         // Verificar si el juego ha terminado
         if (verificar_fin_de_juego()) {
             mostrar_mensaje_de_fin_de_juego();
+            mostrar_game_over();
             rest(1000); // Esperar 1 segundos antes de salir del juego
             exit(0);
         }
     }
 }
 
-int puntuacion = 0; // Variable para almacenar la puntuacion
 
-// Funcion para actualizar la puntuacion
-void actualizar_puntuacion(int puntos) {
-    puntuacion += puntos;
-}
+
 
 //Funcion para dibujar el mapa
 void dibujar_mapa() {
@@ -873,7 +901,11 @@ int main ()
         dibujar_mensaje();
         dibujar_vidas();
 
-
+        /*if (game_over()) {
+            perder_vida(); // Llamar a la función para reducir el contador de vidas
+            rest(5000); // Esperar 5 segundos antes de salir del juego
+            break;
+        }*/
 
         pantalla();
         //darle un tiempo al programa para poder ver el tiempo de pacman
